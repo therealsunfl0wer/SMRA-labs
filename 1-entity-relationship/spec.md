@@ -66,7 +66,7 @@ A Musician performs one or many Genres and a Genre features one or many Musician
 #### Band <--> Event
 A Band hosts zero, one, or many Events and an Event is published by one and only one Band.
 
-### Band <--> Instrument
+#### Band <--> Instrument
 A Band utilizes one or many Instruments and an Instrument is utilized by zero, one, or many Bands.
 
 #### Band <--> Release
