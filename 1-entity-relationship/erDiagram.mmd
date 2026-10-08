@@ -1,0 +1,54 @@
+erDiagram
+    Musician {
+        int id PK
+        string name
+        string email
+        string bio
+    }
+    Band {
+        int id PK
+        string name
+        string email
+        string info
+    }
+    Event {
+        int id PK
+        int band_id FK
+        string name
+        string info
+        string location
+        date date
+    }
+    Instrument {
+        int id PK
+        string name
+    }
+    Signup {
+        int id PK
+        int event_id FK
+        int musician_id FK
+        string info
+    }
+    Release {
+        int id PK
+        int band_id FK
+        int genre_id FK
+        string name
+        string link
+        date date
+    }
+    Genre {
+        int id PK
+        string name
+    }
+
+    Musician }|..o{ Band : belongs
+    Musician }o..|{ Instrument : plays
+    Musician ||..o{ Signup : creates 
+    Musician }|..|{ Genre : performs
+    Band ||..o{ Event : hosts
+    Band }o..|{ Instrument : utilizes
+    Band ||..o{ Release : owns
+    Band }|..|{ Genre : represents
+    Event ||..|{ Signup : contains
+    Release }|..|| Genre : belongs
