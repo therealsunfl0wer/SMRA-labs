@@ -31,16 +31,17 @@ The core user role, can join bands or sign up for an event.
 - `string name`
 
 ### Signup
-#### Musicians sign up to en event which allows them to access additional contact information.
+#### Musicians sign up to an event which allows them to access additional contact information.
 - `int id` (PK)
 - `int event_id` (FK)
-- `string band_email` (FK)
+- `int musician_id` (FK)
 - `string info`
 
 ### Release
 #### An album, EP or a single released by a band.
 - `int id` (PK)
 - `int band_id` (FK)
+- `int genre_id` (FK)
 - `string name`
 - `string link`
 - `date date`
