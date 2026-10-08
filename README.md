@@ -10,4 +10,4 @@
 ---
 
 ## Domain of the project
-> **Rent-A-Gig** is a platform where musicians create profiles, form bands, and bands publish events they participate in. Musicians can browse bands by their attributes (genre, discography) and sign up for events to perform with the band. 
+> **Rent-a-Gig** is a platform where musicians create profiles, form bands, and bands publish events they participate in. Musicians can browse bands by their attributes (genre, discography) and sign up for events to perform with the band.
