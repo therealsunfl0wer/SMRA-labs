@@ -1,0 +1,42 @@
+flowchart LR
+  Musician["Musician"]
+  Band["Band"]
+
+  subgraph RentAGig["Rent-a-Gig"]
+    %% Band Use Cases
+    UC_BAND_001(["UC-BAND-001 Publish Event"])
+    UC_BAND_002(["UC-BAND-002 Update Event"])
+    UC_BAND_003(["UC-BAND-003 Delete Event"])
+    UC_BAND_004(["UC-BAND-004 Create Release"])
+    UC_BAND_005(["UC-BAND-005 Manage Band Instruments"])
+
+    %% Musician Use Cases
+    UC_MUS_001(["UC-MUS-001 Sign Up for Event"])
+    UC_MUS_002(["UC-MUS-002 Browse Bands by Genre"])
+    UC_MUS_003(["UC-MUS-003 Browse Bands by Instrument"])
+    UC_MUS_004(["UC-MUS-004 Manage Musician Instruments"])
+    UC_MUS_005(["UC-MUS-005 View Event Details"])
+
+    %% Shared Use Case
+    ValidateInput(["Validate Input"])
+  end
+
+  %% Actor to Use Case associations
+  Band --- UC_BAND_001
+  Band --- UC_BAND_002
+  Band --- UC_BAND_003
+  Band --- UC_BAND_004
+  Band --- UC_BAND_005
+
+  Musician --- UC_MUS_001
+  Musician --- UC_MUS_002
+  Musician --- UC_MUS_003
+  Musician --- UC_MUS_004
+  Musician --- UC_MUS_005
+
+  %% Include relationships
+  UC_BAND_001 -.->|"«include»"| ValidateInput
+  UC_BAND_004 -.->|"«include»"| ValidateInput
+
+  %% Extend relationships
+  UC_MUS_005 -.->|"«extend»"| UC_MUS_001
