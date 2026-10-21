@@ -14,11 +14,11 @@
    - Description: Musician who is part of a Band and can perform Band-level actions
    - Goals: Create and manage Bands, publish Events and Releases, invite other Musicians
    - Characteristics: Musician with Band affiliation
-   - Relationships: Specialization of Musician (Band Member **is a** Musician)
+   - Relationships: **is a** Musician (Band Member specializes Musician)
 
 ### External Systems
 
-1. **Email Service**
+3. **Email Service**
    - Description: External system for sending email notifications
    - Goals: Deliver notifications to Musicians and Band Members
    - Characteristics: Third-party service
@@ -34,7 +34,21 @@
 
 ### Musician Use Cases
 
-**UC-MUS-001: Create Musician Profile**
+**UC-MUS-001: Sign Up for Event**
+
+- Primary Actor: Musician
+- Preconditions: Musician is registered, Event is published
+- Main Success Scenario:
+  1. Musician views Event details (UC-MUS-005)
+  2. Musician clicks "Sign Up"
+  3. System creates Signup record
+- Postconditions: Signup exists linking Musician to Event
+- Relationships: **extends** UC-MUS-005 (View Event Details)
+- Extensions:
+  - 2a. Musician already signed up: System prevents duplicate
+  - 2b. Event at capacity: System rejects signup
+
+**UC-MUS-002: Create Musician Profile**
 
 - Primary Actor: Musician
 - Preconditions: User is not registered
@@ -45,10 +59,11 @@
   4. Musician submits form
   5. System validates data and creates Musician profile
 - Postconditions: New Musician exists in system
+- Relationships: **includes** UC-SYS-001 (Validate Input)
 - Extensions:
   - 5a. Invalid email: System rejects with validation error
 
-**UC-MUS-002: Edit Musician Profile**
+**UC-MUS-003: Edit Musician Profile**
 
 - Primary Actor: Musician
 - Preconditions: Musician is registered and authenticated
@@ -59,8 +74,9 @@
   4. Musician submits changes
   5. System validates and saves changes
 - Postconditions: Musician profile is updated
+- Relationships: **includes** UC-SYS-001 (Validate Input)
 
-**UC-MUS-003: Search Bands**
+**UC-MUS-004: Search Bands**
 
 - Primary Actor: Musician
 - Preconditions: Bands exist in system
@@ -71,36 +87,7 @@
   4. System returns matching Bands
 - Postconditions: Musician views Band list
 
-**UC-MUS-004: Filter Bands by Genre**
-
-- Primary Actor: Musician
-- Preconditions: Bands and Genres exist
-- Main Success Scenario:
-  1. Musician selects Genre filter
-  2. System filters Bands by selected Genre
-- Postconditions: Musician views filtered Band list
-- Relationships: **is a** specialization of UC-MUS-003 (Search Bands)
-
-**UC-MUS-005: Filter Bands by Instrument**
-
-- Primary Actor: Musician
-- Preconditions: Bands and Instruments exist
-- Main Success Scenario:
-  1. Musician selects Instrument filter
-  2. System filters Bands by selected Instrument
-- Postconditions: Musician views filtered Band list
-- Relationships: **is a** specialization of UC-MUS-003 (Search Bands)
-
-**UC-MUS-006: View Band Profile**
-
-- Primary Actor: Musician
-- Preconditions: Band exists
-- Main Success Scenario:
-  1. Musician selects a Band
-  2. System displays Band profile (name, info, Genres, Instruments, Releases)
-- Postconditions: Musician views Band details
-
-**UC-MUS-007: View Event Details**
+**UC-MUS-005: View Event Details**
 
 - Primary Actor: Musician
 - Preconditions: Event exists
@@ -109,19 +96,34 @@
   2. System displays Event details (name, info, location, date, Band)
 - Postconditions: Musician has Event information
 
-**UC-MUS-008: Sign Up for Event**
+**UC-MUS-006: Filter Bands by Genre**
 
 - Primary Actor: Musician
-- Preconditions: Musician is registered, Event is published
+- Preconditions: Bands and Genres exist
 - Main Success Scenario:
-  1. Musician views Event details (UC-MUS-007)
-  2. Musician clicks "Sign Up"
-  3. System creates Signup record
-- Postconditions: Signup exists linking Musician to Event
-- Relationships: **extends** UC-MUS-007 (View Event Details)
-- Extensions:
-  - 2a. Musician already signed up: System prevents duplicate
-  - 2b. Event at capacity: System rejects signup
+  1. Musician selects Genre filter
+  2. System filters Bands by selected Genre
+- Postconditions: Musician views filtered Band list
+- Relationships: **is a** specialization of UC-MUS-004 (Search Bands)
+
+**UC-MUS-007: Filter Bands by Instrument**
+
+- Primary Actor: Musician
+- Preconditions: Bands and Instruments exist
+- Main Success Scenario:
+  1. Musician selects Instrument filter
+  2. System filters Bands by selected Instrument
+- Postconditions: Musician views filtered Band list
+- Relationships: **is a** specialization of UC-MUS-004 (Search Bands)
+
+**UC-MUS-008: View Band Profile**
+
+- Primary Actor: Musician
+- Preconditions: Band exists
+- Main Success Scenario:
+  1. Musician selects a Band
+  2. System displays Band profile (name, info, Genres, Instruments, Releases)
+- Postconditions: Musician views Band details
 
 **UC-MUS-009: Write Signup Note**
 
@@ -132,7 +134,7 @@
   2. Musician adds note in info field
   3. System saves note
 - Postconditions: Signup info is updated
-- Relationships: **extends** UC-MUS-008 (Sign Up for Event) if note entered
+- Relationships: **extends** UC-MUS-001 (Sign Up for Event) if note entered
 
 **UC-MUS-010: Cancel Signup**
 
@@ -177,7 +179,7 @@
   4. Band Member submits changes
   5. System validates and saves changes
 - Postconditions: Band profile is updated
-- Relationships: **includes** UC-SYS-001 (Validate Input)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-004 (Verify Band Membership)
 
 **UC-BM-003: Invite Musician to Band**
 
@@ -190,7 +192,7 @@
   4. Musician accepts invitation
   5. System associates Musician with Band
 - Postconditions: Musician is Band Member
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 **UC-BM-004: Leave Band**
 
@@ -200,6 +202,7 @@
   1. Band Member selects "Leave Band"
   2. System removes association
 - Postconditions: Band Member is no longer in Band
+- Relationships: **includes** UC-SYS-001 (Validate Input)
 
 **UC-BM-005: Publish Event**
 
@@ -212,7 +215,7 @@
   4. Band Member submits form
   5. System validates and creates Event
 - Postconditions: New Event exists linked to Band
-- Relationships: **includes** UC-SYS-001 (Validate Input)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-004 (Verify Band Membership)
 
 **UC-BM-006: Cancel Event**
 
@@ -222,7 +225,7 @@
   1. Band Member selects Event to cancel
   2. System deletes Event
 - Postconditions: Event is removed
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 **UC-BM-007: Review Event Signups**
 
@@ -232,7 +235,7 @@
   1. Band Member selects Event
   2. System displays list of Signups
 - Postconditions: Band Member views Signups
-- Relationships: **includes** UC-SYS-001 (Validate Input)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-004 (Verify Band Membership)
 
 **UC-BM-008: Publish Release**
 
@@ -245,7 +248,7 @@
   4. Band Member submits form
   5. System validates and creates Release
 - Postconditions: New Release exists linked to Band and Genre
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-002 (Validate Release Link), **includes** UC-SYS-003 (Send Email Notification)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-002 (Validate Release Link), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 ### System Use Cases
 
@@ -263,19 +266,19 @@
 **UC-SYS-002: Validate Release Link**
 
 - Primary Actor: System
-- Description: Validates that Release link is a valid URL and accessible
+- Description: Validates that Release link is a valid URL and accessible via Streaming Platform
 - Preconditions: Release link provided
 - Main Success Scenario:
   1. System receives URL
   2. System validates URL format
-  3. System checks URL accessibility (optional)
+  3. System checks URL accessibility via Streaming Platform
 - Postconditions: Link is validated or error is returned
 - Relationships: Interacts with Streaming Platform
 
 **UC-SYS-003: Send Email Notification**
 
 - Primary Actor: System
-- Description: Sends email notifications to Musicians and Band Members
+- Description: Sends email notifications to Musicians and Band Members via Email Service
 - Preconditions: Notification event triggered
 - Main Success Scenario:
   1. System prepares notification
@@ -283,3 +286,13 @@
   3. Email Service delivers email
 - Postconditions: Notification sent
 - Relationships: Interacts with Email Service
+
+**UC-SYS-004: Verify Band Membership**
+
+- Primary Actor: System
+- Description: Verifies that a Band Member has permission to perform Band-level actions
+- Preconditions: Band Member action requested
+- Main Success Scenario:
+  1. System checks Band Member association with Band
+  2. System confirms permission
+- Postconditions: Permission verified or access denied

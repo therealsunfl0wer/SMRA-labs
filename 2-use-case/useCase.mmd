@@ -1,90 +1,102 @@
 flowchart LR
-  %% Actors
-  Musician["Musician"]:::actor
-  BandMember["Band Member"]:::actor
-  EmailService["Email Service"]:::external
-  StreamingPlatform["Streaming Platform"]:::external
+%% Actors
+Musician["Musician"]:::actor
+BandMember["Band Member"]:::actor
+EmailService["Email Service"]:::external
+StreamingPlatform["Streaming Platform"]:::external
 
-  %% Actor Generalization
-  BandMember -->|"is a"| Musician
+%% Actor Generalization
+BandMember -->|"is a"| Musician
 
-  subgraph RentAGig["Rent-a-Gig"]
-    %% Musician Use Cases
-    UC_MUS_001(["UC-MUS-001 Create Musician Profile"])
-    UC_MUS_002(["UC-MUS-002 Edit Musician Profile"])
-    UC_MUS_003(["UC-MUS-003 Search Bands"])
-    UC_MUS_004(["UC-MUS-004 Filter Bands by Genre"])
-    UC_MUS_005(["UC-MUS-005 Filter Bands by Instrument"])
-    UC_MUS_006(["UC-MUS-006 View Band Profile"])
-    UC_MUS_007(["UC-MUS-007 View Event Details"])
-    UC_MUS_008(["UC-MUS-008 Sign Up for Event"])
-    UC_MUS_009(["UC-MUS-009 Write Signup Note"])
-    UC_MUS_010(["UC-MUS-010 Cancel Signup"])
-    UC_MUS_011(["UC-MUS-011 View Contact Info"])
+subgraph RentAGig["Rent-a-Gig"]
+%% Musician Use Cases
+UC_MUS_001(["UC-MUS-001 Sign Up for Event"])
+UC_MUS_002(["UC-MUS-002 Create Musician Profile"])
+UC_MUS_003(["UC-MUS-003 Edit Musician Profile"])
+UC_MUS_004(["UC-MUS-004 Search Bands"])
+UC_MUS_005(["UC-MUS-005 View Event Details"])
+UC_MUS_006(["UC-MUS-006 Filter Bands by Genre"])
+UC_MUS_007(["UC-MUS-007 Filter Bands by Instrument"])
+UC_MUS_008(["UC-MUS-008 View Band Profile"])
+UC_MUS_009(["UC-MUS-009 Write Signup Note"])
+UC_MUS_010(["UC-MUS-010 Cancel Signup"])
+UC_MUS_011(["UC-MUS-011 View Contact Info"])
 
-    %% Band Member Use Cases
-    UC_BM_001(["UC-BM-001 Create Band"])
-    UC_BM_002(["UC-BM-002 Edit Band Profile"])
-    UC_BM_003(["UC-BM-003 Invite Musician to Band"])
-    UC_BM_004(["UC-BM-004 Leave Band"])
-    UC_BM_005(["UC-BM-005 Publish Event"])
-    UC_BM_006(["UC-BM-006 Cancel Event"])
-    UC_BM_007(["UC-BM-007 Review Event Signups"])
-    UC_BM_008(["UC-BM-008 Publish Release"])
+%% Band Member Use Cases
+UC_BM_001(["UC-BM-001 Create Band"])
+UC_BM_002(["UC-BM-002 Edit Band Profile"])
+UC_BM_003(["UC-BM-003 Invite Musician to Band"])
+UC_BM_004(["UC-BM-004 Leave Band"])
+UC_BM_005(["UC-BM-005 Publish Event"])
+UC_BM_006(["UC-BM-006 Cancel Event"])
+UC_BM_007(["UC-BM-007 Review Event Signups"])
+UC_BM_008(["UC-BM-008 Publish Release"])
 
-    %% System Use Cases
-    UC_SYS_001(["UC-SYS-001 Validate Input"])
-    UC_SYS_002(["UC-SYS-002 Validate Release Link"])
-    UC_SYS_003(["UC-SYS-003 Send Email Notification"])
-  end
+%% System Use Cases
+UC_SYS_001(["UC-SYS-001 Validate Input"])
+UC_SYS_002(["UC-SYS-002 Validate Release Link"])
+UC_SYS_003(["UC-SYS-003 Send Email Notification"])
+UC_SYS_004(["UC-SYS-004 Verify Band Membership"])
+end
 
-  %% Actor to Use Case associations
-  Musician --- UC_MUS_001
-  Musician --- UC_MUS_002
-  Musician --- UC_MUS_003
-  Musician --- UC_MUS_004
-  Musician --- UC_MUS_005
-  Musician --- UC_MUS_006
-  Musician --- UC_MUS_007
-  Musician --- UC_MUS_008
-  Musician --- UC_MUS_009
-  Musician --- UC_MUS_010
-  Musician --- UC_MUS_011
+%% Actor to Use Case associations
+Musician --- UC_MUS_001
+Musician --- UC_MUS_002
+Musician --- UC_MUS_003
+Musician --- UC_MUS_004
+Musician --- UC_MUS_005
+Musician --- UC_MUS_006
+Musician --- UC_MUS_007
+Musician --- UC_MUS_008
+Musician --- UC_MUS_009
+Musician --- UC_MUS_010
+Musician --- UC_MUS_011
 
-  BandMember --- UC_BM_001
-  BandMember --- UC_BM_002
-  BandMember --- UC_BM_003
-  BandMember --- UC_BM_004
-  BandMember --- UC_BM_005
-  BandMember --- UC_BM_006
-  BandMember --- UC_BM_007
-  BandMember --- UC_BM_008
+BandMember --- UC_BM_001
+BandMember --- UC_BM_002
+BandMember --- UC_BM_003
+BandMember --- UC_BM_004
+BandMember --- UC_BM_005
+BandMember --- UC_BM_006
+BandMember --- UC_BM_007
+BandMember --- UC_BM_008
 
-  %% UC Generalization
-  UC_MUS_004 -->|"is a"| UC_MUS_003
-  UC_MUS_005 -->|"is a"| UC_MUS_003
+%% UC Generalization (is a)
+UC_MUS_006 -->|"is a"| UC_MUS_004
+UC_MUS_007 -->|"is a"| UC_MUS_004
 
-  %% Include relationships
-  UC_BM_002 -.->|"«include»"| UC_SYS_001
-  UC_BM_003 -.->|"«include»"| UC_SYS_001
-  UC_BM_005 -.->|"«include»"| UC_SYS_001
-  UC_BM_006 -.->|"«include»"| UC_SYS_001
-  UC_BM_007 -.->|"«include»"| UC_SYS_001
-  UC_BM_008 -.->|"«include»"| UC_SYS_001
-  UC_BM_003 -.->|"«include»"| UC_SYS_003
-  UC_BM_006 -.->|"«include»"| UC_SYS_003
-  UC_BM_008 -.->|"«include»"| UC_SYS_002
-  UC_BM_008 -.->|"«include»"| UC_SYS_003
+%% Include relationships
+UC_MUS_001 -.->|"«include»"| UC_SYS_001
+UC_MUS_002 -.->|"«include»"| UC_SYS_001
+UC_MUS_003 -.->|"«include»"| UC_SYS_001
 
-  %% Extend relationships
-  UC_MUS_008 -.->|"«extend»"| UC_MUS_007
-  UC_MUS_009 -.->|"«extend» if note entered"| UC_MUS_008
+UC_BM_002 -.->|"«include»"| UC_SYS_001
+UC_BM_002 -.->|"«include»"| UC_SYS_004
+UC_BM_003 -.->|"«include»"| UC_SYS_001
+UC_BM_003 -.->|"«include»"| UC_SYS_003
+UC_BM_003 -.->|"«include»"| UC_SYS_004
+UC_BM_004 -.->|"«include»"| UC_SYS_001
+UC_BM_005 -.->|"«include»"| UC_SYS_001
+UC_BM_005 -.->|"«include»"| UC_SYS_004
+UC_BM_006 -.->|"«include»"| UC_SYS_001
+UC_BM_006 -.->|"«include»"| UC_SYS_003
+UC_BM_006 -.->|"«include»"| UC_SYS_004
+UC_BM_007 -.->|"«include»"| UC_SYS_001
+UC_BM_007 -.->|"«include»"| UC_SYS_004
+UC_BM_008 -.->|"«include»"| UC_SYS_001
+UC_BM_008 -.->|"«include»"| UC_SYS_002
+UC_BM_008 -.->|"«include»"| UC_SYS_003
+UC_BM_008 -.->|"«include»"| UC_SYS_004
 
-  %% System to External
-  UC_SYS_003 --- EmailService
-  UC_SYS_002 --- StreamingPlatform
+%% Extend relationships
+UC_MUS_001 -.->|"«extend»"| UC_MUS_005
+UC_MUS_009 -.->|"«extend» if note entered"| UC_MUS_001
 
-  %% Styling
-  classDef actor fill:#f9f,stroke:#333,stroke-width:2px,color:#000
-  classDef usecase fill:#e6f7ff,stroke:#46b8da,stroke-width:2px,color:#000
-  classDef external fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#000
+%% System to External
+UC_SYS_002 --- StreamingPlatform
+UC_SYS_003 --- EmailService
+
+%% Styling
+classDef actor fill:#f9f,stroke:#333,stroke-width:2px,color:#000
+classDef usecase fill:#e6f7ff,stroke:#46b8da,stroke-width:2px,color:#000
+classDef external fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#000
