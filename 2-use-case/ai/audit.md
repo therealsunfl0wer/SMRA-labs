@@ -4,11 +4,11 @@
 
 ### Weak Formulations Found
 
-   **Requirement ID** | **Issue** | **Problem** | **Fix Applied** |
- | ------------------- | ----------- | ------------- | ----------------- |
- | EARS-IF-002 | "Event reaches capacity" | "capacity" attribute is not defined in the data model (Event has no capacity field) | Add `capacity: int` to Event entity or remove the requirement |
- | EARS-ST-002 | "active Signups" | "active" status is not an attribute of Signup entity (Signup has: id, event_id, musician_id, info) | Add `status: string` to Signup entity or remove "active" qualifier |
- | EARS-OP-002 | "instrument-based Musician matching" | "matching" mechanism is undefined (no algorithm or criteria specified) | Define matching rules (e.g., exact instrument match, partial match) |
+  **Requirement ID** | **Issue** | **Problem** | **Fix Applied** |
+ ------------------- | ----------- | ------------- | ----------------- |
+ EARS-IF-002 | "Event reaches capacity" | "capacity" attribute is not defined in the data model (Event has no capacity field) | Add `capacity: int` to Event entity or remove the requirement |
+ EARS-ST-002 | "active Signups" | "active" status is not an attribute of Signup entity (Signup has: id, event_id, musician_id, info) | Add `status: string` to Signup entity or remove "active" qualifier |
+ EARS-OP-002 | "instrument-based Musician matching" | "matching" mechanism is undefined (no algorithm or criteria specified) | Define matching rules (e.g., exact instrument match, partial match) |
 
 ### Strong Requirements
 
@@ -84,39 +84,39 @@ All extend relationships are valid:
 
 **Actors:**
 
- | **Actor** | **Type** | **Model Match** | **Attributes Coverage** |
- | ----------- | ---------- | ----------------- | ------------------------- |
- | Musician | Primary | ✅ Matches Musician entity | All attributes used implicitly in UC-MUS-001–011 |
- | Band Member | Primary | ✅ Specialization of Musician entity | Inherits Musician attributes, no additional attributes |
- | Email Service | External | ✅ External system (not in data model) | N/A |
- | Streaming Platform | External | ✅ External system (not in data model) | N/A |
+ **Actor** | **Type** | **Model Match** | **Attributes Coverage** |
+ ----------- | ---------- | ----------------- | ------------------------- |
+ Musician | Primary | ✅ Matches Musician entity | All attributes used implicitly in UC-MUS-001–011 |
+ Band Member | Primary | ✅ Specialization of Musician entity | Inherits Musician attributes, no additional attributes |
+ Email Service | External | ✅ External system (not in data model) | N/A |
+ Streaming Platform | External | ✅ External system (not in data model) | N/A |
 
 **Entities:**
 
- | **Entity** | **Model Attributes** | **Use Cases Coverage** | **Scenarios Coverage** |
- | ------------ | ---------------------- | ------------------------ | ------------------------- |
- | Musician | id, name, bio, email | UC-MUS-001–011, UC-BM-001–008 | Scenarios 3,4,7,8,9,10,11 |
- | Band | id, name, email, info | UC-BM-001–008, UC-MUS-006, UC-MUS-008 | Scenarios 1,2,5,6,9,12,13 |
- | Event | id, band_id, name, info, location, date | UC-BM-005, UC-BM-006, UC-BM-007, UC-MUS-001, UC-MUS-005, UC-MUS-007 | Scenarios 1,2,3,4,11,12 |
- | Instrument | id, name | UC-MUS-007, UC-MUS-009, UC-BM-002, UC-BM-008 | Scenarios 9,10 |
- | Signup | id, event_id, musician_id, info | UC-MUS-001, UC-MUS-009, UC-MUS-010, UC-MUS-011, UC-BM-007 | Scenarios 3,4,11,12 |
- | Release | id, band_id, genre_id, name, link, date | UC-BM-008, UC-MUS-008 | Scenarios 5,6,13 |
- | Genre | id, name | UC-MUS-006, UC-BM-008 | Scenarios 7,8,13 |
+ **Entity** | **Model Attributes** | **Use Cases Coverage** | **Scenarios Coverage** |
+ ------------ | ---------------------- | ------------------------ | ------------------------- |
+ Musician | id, name, bio, email | UC-MUS-001–011, UC-BM-001–008 | Scenarios 3,4,7,8,9,10,11 |
+ Band | id, name, email, info | UC-BM-001–008, UC-MUS-006, UC-MUS-008 | Scenarios 1,2,5,6,9,12,13 |
+ Event | id, band_id, name, info, location, date | UC-BM-005, UC-BM-006, UC-BM-007, UC-MUS-001, UC-MUS-005, UC-MUS-007 | Scenarios 1,2,3,4,11,12 |
+ Instrument | id, name | UC-MUS-007, UC-MUS-009, UC-BM-002, UC-BM-008 | Scenarios 9,10 |
+ Signup | id, event_id, musician_id, info | UC-MUS-001, UC-MUS-009, UC-MUS-010, UC-MUS-011, UC-BM-007 | Scenarios 3,4,11,12 |
+ Release | id, band_id, genre_id, name, link, date | UC-BM-008, UC-MUS-008 | Scenarios 5,6,13 |
+ Genre | id, name | UC-MUS-006, UC-BM-008 | Scenarios 7,8,13 |
 
 **Relationships:**
 
- | **Relationship** | **Model** | **Use Cases** | **Scenarios** |
- | ------------------ | ----------- | --------------- | --------------- |
- | Musician ↔ Band | M:N | UC-BM-003 (Invite), UC-BM-004 (Leave) | None |
- | Musician ↔ Instrument | M:N | UC-MUS-007 (Filter), UC-MUS-009 (Write Note) | Scenario 10 |
- | Musician ↔ Signup | 1:N | UC-MUS-001 (Sign Up) | Scenarios 3,4,11 |
- | Musician ↔ Genre | M:N | UC-MUS-006 (Filter) | Scenarios 7,8 |
- | Band ↔ Event | 1:N | UC-BM-005 (Publish), UC-BM-006 (Cancel) | Scenarios 1,2,12 |
- | Band ↔ Instrument | M:N | UC-BM-002 (Edit Band Profile) | Scenario 9 |
- | Band ↔ Release | 1:N | UC-BM-008 (Publish Release) | Scenarios 5,6 |
- | Band ↔ Genre | M:N | UC-BM-008 (Publish Release) | Scenario 13 |
- | Event ↔ Signup | 1:N | UC-MUS-001 (Sign Up), UC-BM-007 (Review Signups) | Scenarios 3,4,11,12 |
- | Release ↔ Genre | N:1 | UC-BM-008 (Publish Release) | Scenario 13 |
+ **Relationship** | **Model** | **Use Cases** | **Scenarios** |
+ ------------------ | ----------- | --------------- | --------------- |
+ Musician ↔ Band | M:N | UC-BM-003 (Invite), UC-BM-004 (Leave) | None |
+ Musician ↔ Instrument | M:N | UC-MUS-007 (Filter), UC-MUS-009 (Write Note) | Scenario 10 |
+ Musician ↔ Signup | 1:N | UC-MUS-001 (Sign Up) | Scenarios 3,4,11 |
+ Musician ↔ Genre | M:N | UC-MUS-006 (Filter) | Scenarios 7,8 |
+ Band ↔ Event | 1:N | UC-BM-005 (Publish), UC-BM-006 (Cancel) | Scenarios 1,2,12 |
+ Band ↔ Instrument | M:N | UC-BM-002 (Edit Band Profile) | Scenario 9 |
+ Band ↔ Release | 1:N | UC-BM-008 (Publish Release) | Scenarios 5,6 |
+ Band ↔ Genre | M:N | UC-BM-008 (Publish Release) | Scenario 13 |
+ Event ↔ Signup | 1:N | UC-MUS-001 (Sign Up), UC-BM-007 (Review Signups) | Scenarios 3,4,11,12 |
+ Release ↔ Genre | N:1 | UC-BM-008 (Publish Release) | Scenario 13 |
 
 ---
 
@@ -147,34 +147,34 @@ All extend relationships are valid:
 
 ### Uncovered Requirements
 
- | **ID** | **Description** | **Reason** | **Impact** |
- | -------- | ---------------- | ------------ | ------------ |
- | EARS-EV-002 | When Band updates Event, system shall validate changes and persist the updated Event | No UC for Event update (only publish/cancel exist) | Medium - Missing core CRUD operation |
- | EARS-EV-005 | When Musician updates profile, system shall validate and persist changes | No scenario for profile editing in scenarios.feature | Low - Covered by UC but not tested |
- | EARS-EV-007 | When Band deletes Release, system shall remove it if no dependencies exist | No UC or scenario for Release deletion | Medium - Missing core CRUD operation |
- | EARS-ST-002 | While Musician has active Signups, system shall prevent Musician deletion | No UC or scenario for Musician deletion prevention | Medium - Referential integrity gap |
- | EARS-ST-004 | While Band has published Events or Releases, system shall prevent Band deletion | No UC or scenario for Band deletion prevention | Medium - Referential integrity gap |
- | EARS-OP-001 | Where Musician specifies Instruments, system shall enable instrument-based Band filtering | No scenario for instrument-based filtering in scenarios.feature | Low - Optional feature |
- | EARS-NF-001 | System shall respond to all API requests within 500ms under normal load | Requires performance testing infrastructure | Medium - Non-functional, separate testing needed |
+ **ID** | **Description** | **Reason** | **Impact** |
+ -------- | ---------------- | ------------ | ------------ |
+ EARS-EV-002 | When Band updates Event, system shall validate changes and persist the updated Event | No UC for Event update (only publish/cancel exist) | Medium - Missing core CRUD operation |
+ EARS-EV-005 | When Musician updates profile, system shall validate and persist changes | No scenario for profile editing in scenarios.feature | Low - Covered by UC but not tested |
+ EARS-EV-007 | When Band deletes Release, system shall remove it if no dependencies exist | No UC or scenario for Release deletion | Medium - Missing core CRUD operation |
+ EARS-ST-002 | While Musician has active Signups, system shall prevent Musician deletion | No UC or scenario for Musician deletion prevention | Medium - Referential integrity gap |
+ EARS-ST-004 | While Band has published Events or Releases, system shall prevent Band deletion | No UC or scenario for Band deletion prevention | Medium - Referential integrity gap |
+ EARS-OP-001 | Where Musician specifies Instruments, system shall enable instrument-based Band filtering | No scenario for instrument-based filtering in scenarios.feature | Low - Optional feature |
+ EARS-NF-001 | System shall respond to all API requests within 500ms under normal load | Requires performance testing infrastructure | Medium - Non-functional, separate testing needed |
 
 ### Uncovered Use Cases
 
- | **ID** | **Description** | **Reason** | **Impact** |
- | -------- | ---------------- | ------------ | ------------ |
- | UC-MUS-002 | Create Musician Profile | No scenario in scenarios.feature | Low |
- | UC-MUS-003 | Edit Musician Profile | No scenario in scenarios.feature | Low |
- | UC-MUS-005 | View Event Details | No scenario in scenarios.feature | Low |
- | UC-MUS-007 | Filter Bands by Instrument | No scenario in scenarios.feature | Low |
- | UC-MUS-008 | View Band Profile | No scenario in scenarios.feature | Low |
- | UC-MUS-009 | Write Signup Note | No scenario in scenarios.feature | Low |
- | UC-MUS-010 | Cancel Signup | No scenario in scenarios.feature | Medium |
- | UC-MUS-011 | View Contact Info | No scenario in scenarios.feature | Low |
- | UC-BM-001 | Create Band | No scenario in scenarios.feature | Medium |
- | UC-BM-002 | Edit Band Profile | No scenario in scenarios.feature | Low |
- | UC-BM-003 | Invite Musician to Band | No scenario in scenarios.feature | Medium |
- | UC-BM-004 | Leave Band | No scenario in scenarios.feature | Medium |
- | UC-BM-007 | Review Event Signups | No scenario in scenarios.feature | Medium |
- | UC-SYS-003 | Send Email Notification | No scenario in scenarios.feature | Low |
- | UC-SYS-004 | Verify Band Membership | No scenario in scenarios.feature | Medium |
+ **ID** | **Description** | **Reason** | **Impact** |
+ -------- | ---------------- | ------------ | ------------ |
+ UC-MUS-002 | Create Musician Profile | No scenario in scenarios.feature | Low |
+ UC-MUS-003 | Edit Musician Profile | No scenario in scenarios.feature | Low |
+ UC-MUS-005 | View Event Details | No scenario in scenarios.feature | Low |
+ UC-MUS-007 | Filter Bands by Instrument | No scenario in scenarios.feature | Low |
+ UC-MUS-008 | View Band Profile | No scenario in scenarios.feature | Low |
+ UC-MUS-009 | Write Signup Note | No scenario in scenarios.feature | Low |
+ UC-MUS-010 | Cancel Signup | No scenario in scenarios.feature | Medium |
+ UC-MUS-011 | View Contact Info | No scenario in scenarios.feature | Low |
+ UC-BM-001 | Create Band | No scenario in scenarios.feature | Medium |
+ UC-BM-002 | Edit Band Profile | No scenario in scenarios.feature | Low |
+ UC-BM-003 | Invite Musician to Band | No scenario in scenarios.feature | Medium |
+ UC-BM-004 | Leave Band | No scenario in scenarios.feature | Medium |
+ UC-BM-007 | Review Event Signups | No scenario in scenarios.feature | Medium |
+ UC-SYS-003 | Send Email Notification | No scenario in scenarios.feature | Low |
+ UC-SYS-004 | Verify Band Membership | No scenario in scenarios.feature | Medium |
 
 **Total Scenarios in scenarios.feature: 13**

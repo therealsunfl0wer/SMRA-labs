@@ -1,0 +1,101 @@
+@startuml useCase
+left to right direction
+
+' ===== Actors =====
+actor "Musician" as Musician
+actor "Band Member" as BandMember
+actor "Email Service" as EmailService <<external>>
+actor "Streaming Platform" as StreamingPlatform <<external>>
+
+' Actor generalization
+BandMember --|> Musician
+
+rectangle "Rent-a-Gig" {
+
+  ' ===== Musician use cases =====
+  usecase "UC-MUS-001\nSign Up for Event" as UC_MUS_001
+  usecase "UC-MUS-002\nCreate Musician Profile" as UC_MUS_002
+  usecase "UC-MUS-003\nEdit Musician Profile" as UC_MUS_003
+  usecase "UC-MUS-004\nSearch Bands" as UC_MUS_004
+  usecase "UC-MUS-005\nView Event Details" as UC_MUS_005
+  usecase "UC-MUS-006\nFilter Bands by Genre" as UC_MUS_006
+  usecase "UC-MUS-007\nFilter Bands by Instrument" as UC_MUS_007
+  usecase "UC-MUS-008\nView Band Profile" as UC_MUS_008
+  usecase "UC-MUS-009\nWrite Signup Note" as UC_MUS_009
+  usecase "UC-MUS-010\nCancel Signup" as UC_MUS_010
+  usecase "UC-MUS-011\nView Contact Info" as UC_MUS_011
+
+  ' ===== Band Member use cases =====
+  usecase "UC-BM-001\nCreate Band" as UC_BM_001
+  usecase "UC-BM-002\nEdit Band Profile" as UC_BM_002
+  usecase "UC-BM-003\nInvite Musician to Band" as UC_BM_003
+  usecase "UC-BM-004\nLeave Band" as UC_BM_004
+  usecase "UC-BM-005\nPublish Event" as UC_BM_005
+  usecase "UC-BM-006\nCancel Event" as UC_BM_006
+  usecase "UC-BM-007\nReview Event Signups" as UC_BM_007
+  usecase "UC-BM-008\nPublish Release" as UC_BM_008
+
+  ' ===== System use cases =====
+  usecase "UC-SYS-001\nValidate Input" as UC_SYS_001
+  usecase "UC-SYS-002\nValidate Release Link" as UC_SYS_002
+  usecase "UC-SYS-003\nSend Email Notification" as UC_SYS_003
+  usecase "UC-SYS-004\nVerify Band Membership" as UC_SYS_004
+}
+
+' ===== Actor to use case associations =====
+Musician --> UC_MUS_001
+Musician --> UC_MUS_002
+Musician --> UC_MUS_003
+Musician --> UC_MUS_004
+Musician --> UC_MUS_005
+Musician --> UC_MUS_006
+Musician --> UC_MUS_007
+Musician --> UC_MUS_008
+Musician --> UC_MUS_009
+Musician --> UC_MUS_010
+Musician --> UC_MUS_011
+
+BandMember --> UC_BM_001
+BandMember --> UC_BM_002
+BandMember --> UC_BM_003
+BandMember --> UC_BM_004
+BandMember --> UC_BM_005
+BandMember --> UC_BM_006
+BandMember --> UC_BM_007
+BandMember --> UC_BM_008
+
+' ===== Use case generalization =====
+UC_MUS_006 --|> UC_MUS_004
+UC_MUS_007 --|> UC_MUS_004
+
+' ===== Include relationships =====
+UC_MUS_001 ..> UC_SYS_001 : <<include>>
+UC_MUS_002 ..> UC_SYS_001 : <<include>>
+UC_MUS_003 ..> UC_SYS_001 : <<include>>
+
+UC_BM_002 ..> UC_SYS_001 : <<include>>
+UC_BM_002 ..> UC_SYS_004 : <<include>>
+UC_BM_003 ..> UC_SYS_001 : <<include>>
+UC_BM_003 ..> UC_SYS_003 : <<include>>
+UC_BM_003 ..> UC_SYS_004 : <<include>>
+UC_BM_004 ..> UC_SYS_001 : <<include>>
+UC_BM_005 ..> UC_SYS_001 : <<include>>
+UC_BM_005 ..> UC_SYS_004 : <<include>>
+UC_BM_006 ..> UC_SYS_001 : <<include>>
+UC_BM_006 ..> UC_SYS_003 : <<include>>
+UC_BM_006 ..> UC_SYS_004 : <<include>>
+UC_BM_007 ..> UC_SYS_001 : <<include>>
+UC_BM_007 ..> UC_SYS_004 : <<include>>
+UC_BM_008 ..> UC_SYS_001 : <<include>>
+UC_BM_008 ..> UC_SYS_002 : <<include>>
+UC_BM_008 ..> UC_SYS_003 : <<include>>
+UC_BM_008 ..> UC_SYS_004 : <<include>>
+
+' ===== Extend relationships =====
+UC_MUS_001 ..> UC_MUS_005 : <<extend>>
+UC_MUS_009 ..> UC_MUS_001 : <<extend>>\n[if note entered]
+
+' ===== System to external actors =====
+UC_SYS_002 -- StreamingPlatform
+UC_SYS_003 -- EmailService
+@enduml
