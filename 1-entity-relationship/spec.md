@@ -38,6 +38,13 @@ The core user role, can join bands or sign up for an event.
 - `int musician_id` (FK)
 - `string info`
 
+### Notification
+#### A notice about a new Signup delivered to the Band that owns the Event, one record per delivery channel (`email` or `site`).
+- `int id` (PK)
+- `int signup_id` (FK)
+- `string channel`
+- `string status`
+
 ### Release
 #### An album, EP or a single released by a band.
 - `int id` (PK)
@@ -80,12 +87,16 @@ A Band represents one or many Genres and a Genre encompasses one or many Bands.
 #### Event <--> Signup
 An Event contains zero, one, or many Signups and a Signup targets one and only one Event.
 
+#### Signup <--> Notification
+A Signup triggers zero, one, or many Notifications (one per channel) and a Notification concerns one and only one Signup.
+
 #### Release <--> Genre
 A Release belongs to one and only one Genre and a Genre classifies one or many Releases.
 
 ### Assumptions (out of scope)
 - Venues are only described in text and aren't a separate entity
-- Negotiation, communication and payment take place outside of the project
+- Negotiation, communication between users and payment take place outside of the project
+- System notifications about Signups are in scope and are stored as Notifications (see ADR 4)
 
 ## Acceptance criteria
 - Every entity must have a relationship

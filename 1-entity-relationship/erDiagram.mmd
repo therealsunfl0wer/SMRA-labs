@@ -30,6 +30,12 @@ erDiagram
         int musician_id FK
         string info
     }
+    Notification {
+        int id PK
+        int signup_id FK
+        string channel
+        string status
+    }
     Release {
         int id PK
         int band_id FK
@@ -52,4 +58,5 @@ erDiagram
     Band ||..o{ Release : owns
     Band }|..|{ Genre : represents
     Event ||..o{ Signup : contains
+    Signup ||..o{ Notification : triggers
     Release }|..|| Genre : belongs
