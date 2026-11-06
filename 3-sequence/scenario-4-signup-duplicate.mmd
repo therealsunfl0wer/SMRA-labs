@@ -1,0 +1,70 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant MR as MusicianRepository
+    participant EVR as EventRepository
+    participant SR as SignupRepository
+    participant DB as Database
+
+    Note over M,DB: Scenario 4 - Musician tries to sign up twice for the same Event (UC-MUS-001 extension 2a, EARS-IF-001)
+    Note over M,DB: Given Musician 1 exists, Event 1 exists and a Signup already exists for Musician 1 and Event 1
+
+    activate M
+    Note over M,UI: When Musician 1 attempts to sign up for Event 1 again
+    M->>UI: clickSignUp(eventId=1, info=Available)
+    activate UI
+    UI->>API: POST /api/events/1/signups (info=Available)
+    activate API
+    API->>API: resolveMusicianId(sessionToken)
+    API->>SS: createSignup(musicianId=1, eventId=1, info=Available)
+    activate SS
+
+    SS->>MR: findById(1)
+    activate MR
+    MR-->>SS: Musician(id=1)
+    deactivate MR
+
+    SS->>EVR: findById(1)
+    activate EVR
+    EVR-->>SS: Event(id=1, band_id=3, capacity=5, date)
+    deactivate EVR
+
+    SS->>SR: existsByMusicianIdAndEventId(1, 1)
+    activate SR
+    SR-->>SS: true
+    deactivate SR
+
+    alt a Signup for Musician 1 and Event 1 already exists (EARS-IF-001)
+        SS-->>API: SignupRejected(ALREADY_SIGNED_UP)
+        API-->>UI: 409 Conflict (Already signed up for this event)
+        UI-->>M: showError(Already signed up for this event)
+        Note over M,UI: Then the system rejects with error Already signed up for this event
+    else pre-check passed (stale read or concurrent cancel, not exercised by this scenario)
+        SS->>SR: insert(Signup(musician_id=1, event_id=1, info=Available))
+        activate SR
+        SR->>DB: INSERT INTO Signup (event_id, musician_id, info)
+        activate DB
+        alt UNIQUE(event_id, musician_id) violated (double submit race)
+            DB-->>SR: UniqueViolation
+            SR-->>SS: DuplicateSignupException
+            SS-->>API: SignupRejected(ALREADY_SIGNED_UP)
+            API-->>UI: 409 Conflict (Already signed up for this event)
+            UI-->>M: showError(Already signed up for this event)
+        else row inserted
+            DB-->>SR: id=18
+            SR-->>SS: Signup(id=18)
+            SS-->>API: SignupCreated(signupId=18)
+            API-->>UI: 201 Created
+            UI-->>M: showConfirmation()
+        end
+        deactivate DB
+        deactivate SR
+    end
+
+    deactivate SS
+    deactivate API
+    deactivate UI
+    deactivate M

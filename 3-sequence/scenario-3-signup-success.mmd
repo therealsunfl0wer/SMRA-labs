@@ -1,0 +1,94 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant MR as MusicianRepository
+    participant EVR as EventRepository
+    participant SR as SignupRepository
+    participant NS as NotificationService
+    participant BR as BandRepository
+    participant NR as NotificationRepository
+    participant ES as EmailService
+
+    Note over M,ES: Scenario 3 - Musician signs up for an Event (UC-MUS-001 main success scenario)
+    Note over M,ES: Given Musician 1 exists and Event 1 exists (UC-MUS-005 View Event Details was done before)
+
+    activate M
+    M->>UI: clickSignUp(eventId=1, info=Available)
+    activate UI
+    UI->>API: POST /api/events/1/signups (info=Available)
+    activate API
+    API->>API: resolveMusicianId(sessionToken)
+    API->>SS: createSignup(musicianId=1, eventId=1, info=Available)
+    activate SS
+
+    SS->>MR: findById(1)
+    activate MR
+    MR-->>SS: Musician(id=1)
+    deactivate MR
+
+    SS->>EVR: findById(1)
+    activate EVR
+    EVR-->>SS: Event(id=1, band_id=3, capacity=5, date)
+    deactivate EVR
+
+    SS->>SR: existsByMusicianIdAndEventId(1, 1)
+    activate SR
+    SR-->>SS: false
+    deactivate SR
+
+    SS->>SR: countByEventId(1)
+    activate SR
+    SR-->>SS: currentCount=3
+    deactivate SR
+    SS->>SS: assertBelowCapacity(3, 5)
+
+    alt all guards passed (Musician found, Event found, no duplicate, below Event.capacity)
+        opt info is not blank (UC-MUS-009 Write Signup Note)
+            SS->>SS: validateInfo(info)
+        end
+        Note over SS,SR: When Musician 1 signs up for Event 1 with info Available
+        SS->>SR: insert(Signup(musician_id=1, event_id=1, info=Available))
+        activate SR
+        SR-->>SS: Signup(id=17)
+        deactivate SR
+
+        Note over SS,ES: UC-SYS-003 Send Notification (included by UC-MUS-001)
+        SS->>NS: notifyBand(signupId=17, bandId=3)
+        activate NS
+        NS->>BR: findById(3)
+        activate BR
+        BR-->>NS: Band(id=3, email)
+        deactivate BR
+        activate NR
+        par email channel
+            NS->>ES: sendEmail(band.email, New signup for Event 1)
+            activate ES
+            ES-->>NS: accepted(messageId)
+            deactivate ES
+            NS->>NR: insert(Notification(signup_id=17, channel=email, status=sent))
+            NR-->>NS: Notification(id=41)
+        and on-site channel
+            NS->>NR: insert(Notification(signup_id=17, channel=site, status=unread))
+            NR-->>NS: Notification(id=42)
+        end
+        deactivate NR
+        NS-->>SS: Notified
+        deactivate NS
+
+        SS-->>API: SignupCreated(signupId=17)
+        API-->>UI: 201 Created
+        UI-->>M: showConfirmation()
+        Note over M,ES: Then a Signup is created, the Band is notified by email and a site Notification is recorded
+    else a guard failed (see scenarios 4 and 11)
+        SS-->>API: SignupRejected(reasonCode)
+        API-->>UI: 404 Not Found or 409 Conflict
+        UI-->>M: showError(reasonCode)
+    end
+
+    deactivate SS
+    deactivate API
+    deactivate UI
+    deactivate M

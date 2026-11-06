@@ -1,0 +1,73 @@
+sequenceDiagram
+    autonumber
+    actor MA as Musician A
+    actor MB as Musician B
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant EVR as EventRepository
+    participant SR as SignupRepository
+    participant NS as NotificationService
+    participant DB as Database
+
+    Note over MA,DB: Scenario 11 - Concurrent Event signups at capacity (UC-MUS-001 extension 2b, EARS-IF-002, EARS-NF-002)
+    Note over MA,DB: Given Event 1 exists with capacity 5 and 4 Signups already exist
+
+    activate UI
+    activate API
+    activate SS
+    activate EVR
+    activate SR
+    activate DB
+
+    Note over MA,DB: When 2 Musicians simultaneously attempt to sign up for Event 1
+    par Musician A submits
+        activate MA
+        MA->>UI: clickSignUp(eventId=1, info=Available)
+        UI->>API: POST /api/events/1/signups (info=Available)
+        API->>SS: createSignup(musicianId=A, eventId=1, info=Available)
+        SS->>EVR: findById(1)
+        EVR-->>SS: Event(id=1, band_id=3, capacity=5, date)
+        SS->>SR: insertIfBelowLimit(1, A, Available, 5)
+        SR->>DB: INSERT INTO Signup SELECT ... WHERE count(event_id=1) is below 5 (SERIALIZABLE)
+        DB-->>SR: 1 row inserted (count 4 to 5)
+        SR-->>SS: Signup(id=21)
+        SS->>NS: notifyBand(signupId=21, bandId=3)
+        activate NS
+        NS-->>SS: Notified (email and site channels as in scenario 3)
+        deactivate NS
+        SS-->>API: SignupCreated(signupId=21)
+        API-->>UI: 201 Created
+        UI-->>MA: showConfirmation()
+        deactivate MA
+    and Musician B submits at the same time
+        activate MB
+        MB->>UI: clickSignUp(eventId=1, info=Available)
+        UI->>API: POST /api/events/1/signups (info=Available)
+        API->>SS: createSignup(musicianId=B, eventId=1, info=Available)
+        SS->>EVR: findById(1)
+        EVR-->>SS: Event(id=1, band_id=3, capacity=5, date)
+        loop up to 3 attempts while SerializationFailure
+            SS->>SR: insertIfBelowLimit(1, B, Available, 5)
+            SR->>DB: INSERT INTO Signup SELECT ... WHERE count(event_id=1) is below 5 (SERIALIZABLE)
+            alt attempt 1 - conflicts with uncommitted transaction of Musician A
+                DB-->>SR: SerializationFailure (SQLSTATE 40001)
+                SR-->>SS: RetryableConflict
+            else attempt 2 - Musician A is committed, capacity reached
+                DB-->>SR: 0 rows inserted (count is already 5)
+                SR-->>SS: LimitReached
+            end
+        end
+        SS-->>API: SignupRejected(EVENT_FULL)
+        API-->>UI: 409 Conflict (Event full)
+        UI-->>MB: showError(Event full)
+        deactivate MB
+    end
+    Note over MA,MB: Then exactly one signup succeeds and the other is rejected with Event full
+
+    deactivate DB
+    deactivate SR
+    deactivate EVR
+    deactivate SS
+    deactivate API
+    deactivate UI
