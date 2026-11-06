@@ -13,6 +13,7 @@ Feature: Rent-a-Gig Platform Functionality
             | info       | Outdoor event   |
             | location   | Kyiv            |
             | date       | 2025-07-15      |
+            | capacity   | 20              |
         Then the Event should be created with status "published"
         And the Event should have band_id 1
 
@@ -30,6 +31,8 @@ Feature: Rent-a-Gig Platform Functionality
         And an Event with id 1 exists
         When Musician 1 signs up for Event 1 with info "Available"
         Then a Signup should be created linking Musician 1 to Event 1
+        And the Band that owns Event 1 should be notified by email
+        And a Notification with channel "site" should be recorded for the Signup
 
     @P1 @musician @signup
     Scenario: Musician tries to sign up twice for same Event

@@ -13,7 +13,7 @@
 
 ### Band Operations
 
-1. **EARS-EV-001**: When a Band submits valid Event details, the system shall create the Event with status "published".
+1. **EARS-EV-001**: When a Band submits valid Event details (name, info, location, date, capacity), the system shall create the Event with status "published".
 2. **EARS-EV-002**: When a Band updates an Event, the system shall validate changes and persist the updated Event.
 3. **EARS-EV-003**: When a Band deletes an Event, the system shall remove the Event if no Signups exist.
 
@@ -21,6 +21,10 @@
 
  1. **EARS-EV-004**: When a Musician submits valid signup for an Event, the system shall create a Signup record.
  2. **EARS-EV-005**: When a Musician updates their profile, the system shall validate and persist changes.
+
+### Notification Operations
+
+ 1. **EARS-EV-008**: When a Signup is created, the system shall notify the Band that owns the Event by email and on the site, recording one Notification per channel.
 
 ### Release Operations
 
@@ -37,7 +41,7 @@
 ## Unwanted Behavior Requirements
 
  1. **EARS-IF-001**: If a Musician attempts to sign up for the same Event twice, then the system shall reject the duplicate signup.
- 2. **EARS-IF-002**: If an Event reaches capacity, then the system shall reject subsequent signup attempts.
+ 2. **EARS-IF-002**: If the number of Signups for an Event equals Event.capacity, then the system shall reject subsequent signup attempts with an "Event full" error.
  3. **EARS-IF-003**: If invalid data is submitted for any entity, then the system shall return specific validation errors.
  4. **EARS-IF-004**: If a foreign key reference is invalid, then the system shall reject the operation with integrity error.
  5. **EARS-IF-005**: If a Band attempts to create an Event with a past date, then the system shall reject with date validation error.
