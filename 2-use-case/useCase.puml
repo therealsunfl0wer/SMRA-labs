@@ -38,7 +38,7 @@ rectangle "Rent-a-Gig" {
   ' ===== System use cases =====
   usecase "UC-SYS-001\nValidate Input" as UC_SYS_001
   usecase "UC-SYS-002\nValidate Release Link" as UC_SYS_002
-  usecase "UC-SYS-003\nSend Email Notification" as UC_SYS_003
+  usecase "UC-SYS-003\nSend Notification" as UC_SYS_003
   usecase "UC-SYS-004\nVerify Band Membership" as UC_SYS_004
 }
 
@@ -70,6 +70,7 @@ UC_MUS_007 --|> UC_MUS_004
 
 ' ===== Include relationships =====
 UC_MUS_001 ..> UC_SYS_001 : <<include>>
+UC_MUS_001 ..> UC_SYS_003 : <<include>>
 UC_MUS_002 ..> UC_SYS_001 : <<include>>
 UC_MUS_003 ..> UC_SYS_001 : <<include>>
 
