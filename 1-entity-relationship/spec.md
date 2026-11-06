@@ -25,6 +25,7 @@ The core user role, can join bands or sign up for an event.
 - `string info`
 - `string location`
 - `date date`
+- `int capacity`
 
 ### Instrument
 - `int id` (PK)
