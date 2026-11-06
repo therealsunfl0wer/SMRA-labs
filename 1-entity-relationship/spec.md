@@ -78,7 +78,7 @@ A Band owns zero, one, or many Releases and a Release is issued by one and only 
 A Band represents one or many Genres and a Genre encompasses one or many Bands.
 
 #### Event <--> Signup
-An Event contains one or many Signups and a Signup targets one and only one Event.
+An Event contains zero, one, or many Signups and a Signup targets one and only one Event.
 
 #### Release <--> Genre
 A Release belongs to one and only one Genre and a Genre classifies one or many Releases.
