@@ -4,7 +4,7 @@
 
    **Requirement ID** | **Use Cases** | **Scenarios** | **Entities** | **Coverage** |
   ------------------- | --------------- | --------------- | -------------- | -------------- |
-  **EARS-UB-001** | UC-MUS-001, UC-MUS-002, UC-MUS-003, UC-MUS-004, UC-MUS-005, UC-MUS-006, UC-MUS-007, UC-MUS-008, UC-MUS-009, UC-MUS-010, UC-MUS-011, UC-BM-001, UC-BM-002, UC-BM-003, UC-BM-004, UC-BM-005, UC-BM-006, UC-BM-007, UC-BM-008, UC-SYS-001, UC-SYS-002, UC-SYS-003, UC-SYS-004 | 1,2,3,4,5,6,7,8,9,10,11,12,13 | Musician, Band, Event, Instrument, Signup, Release, Genre | covered |
+  **EARS-UB-001** | UC-MUS-001, UC-MUS-002, UC-MUS-003, UC-MUS-004, UC-MUS-005, UC-MUS-006, UC-MUS-007, UC-MUS-008, UC-MUS-009, UC-MUS-010, UC-MUS-011, UC-BM-001, UC-BM-002, UC-BM-003, UC-BM-004, UC-BM-005, UC-BM-006, UC-BM-007, UC-BM-008, UC-SYS-001, UC-SYS-002, UC-SYS-003, UC-SYS-004 | 1,2,3,4,5,6,7,8,9,10,11,12,13 | Musician, Band, Event, Instrument, Signup, Release, Genre, Notification | covered |
  **EARS-UB-002** | All UC | All scenarios | All entities | covered |
  **EARS-UB-003** | All UC | All scenarios | All entities | covered |
  **EARS-UB-004** | All UC | All scenarios | All entities | covered |
@@ -17,6 +17,7 @@
  **EARS-EV-005** | UC-MUS-003 | None | Musician | uncovered |
  **EARS-EV-006** | UC-BM-008 | 5,6 | Band, Release, Genre | covered |
  **EARS-EV-007** | None | None | Band, Release | uncovered |
+ **EARS-EV-008** | UC-MUS-001, UC-SYS-003 | 3 | Signup, Notification, Band | covered |
  **EARS-ST-001** | UC-BM-006, UC-BM-005 | 12 | Event, Signup | covered |
  **EARS-ST-002** | None | None | Musician, Signup | uncovered |
  **EARS-ST-003** | UC-BM-006, UC-BM-008 | 12,13 | Genre, Release, Band | covered |
@@ -67,7 +68,6 @@
  UC-BM-003 | Invite Musician to Band | No scenario in scenarios.feature | Medium - Core Band membership missing |
  UC-BM-004 | Leave Band | No scenario in scenarios.feature | Medium - Core Band membership missing |
  UC-BM-007 | Review Event Signups | No scenario in scenarios.feature | Medium - Core Band management missing |
- UC-SYS-003 | Send Email Notification | No scenario in scenarios.feature | Low - External system interaction |
  UC-SYS-004 | Verify Band Membership | No scenario in scenarios.feature | Medium - Permission system not tested |
 
 **Total Scenarios in scenarios.feature: 13**
