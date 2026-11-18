@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    Note over M,SR: Scenario 5 - Signup is rejected when Event capacity is reached
+    M->>UI: submitSignup(eventId, info)
+    activate UI
+    UI->>API: POST /events/{id}/signups
+    activate API
+    API->>SS: createSignup(musicianId, eventId, info)
+    activate SS
+    SS->>ER: findPublishedById(eventId)
+    activate ER
+    ER-->>SS: Event(capacity=5)
+    deactivate ER
+    SS->>SR: existsByMusicianAndEvent(musicianId, eventId)
+    activate SR
+    SR-->>SS: false
+    deactivate SR
+    SS->>SR: countByEventId(eventId)
+    activate SR
+    SR-->>SS: count=5
+    deactivate SR
+    alt signup count is equal to Event.capacity
+        SS-->>API: SignupRejected(EVENT_FULL)
+        API-->>UI: 409 Conflict
+        UI-->>M: showError("Event full")
+    else capacity remains
+        SS->>SR: save(Signup)
+        activate SR
+        SR-->>SS: Signup(id)
+        deactivate SR
+        SS-->>API: SignupCreated(id)
+        API-->>UI: 201 Created
+        UI-->>M: showConfirmation()
+    end
+    deactivate SS
+    deactivate API
+    deactivate UI
