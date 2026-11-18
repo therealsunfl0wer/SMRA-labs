@@ -25,6 +25,7 @@ Feature: Rent-a-Gig Platform Functionality
         When Musician 1 signs up for Event 1 with info "Available"
         Then a Signup should be created linking Musician 1 to Event 1
         And the Band that owns Event 1 should be notified by email
+        And a Notification with channel "email" should be recorded for the Signup
         And a Notification with channel "site" should be recorded for the Signup
 
     @P1 @musician @signup
@@ -95,7 +96,7 @@ Feature: Rent-a-Gig Platform Functionality
         And the other should be rejected with "Event full" error
 
     @edge-case @deletion
-    Scenario: Band deletes Event with Signups
+    Scenario: Band cancels Event with Signups
         Given a Band with id 1 owns Event 1
         And multiple Signups exist for Event 1
         When Band 1 cancels Event 1
