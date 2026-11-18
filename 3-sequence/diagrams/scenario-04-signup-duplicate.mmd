@@ -10,7 +10,7 @@ sequenceDiagram
     Note over M,SR: Scenario 4 - Duplicate Signup is rejected
     M->>UI: submitSignup(eventId, info)
     activate UI
-    UI->>API: POST /events/{id}/signups
+    UI->>API: POST /events/{eventId}/signups
     activate API
     API->>SS: createSignup(musicianId, eventId, info)
     activate SS
@@ -20,7 +20,7 @@ sequenceDiagram
     deactivate MR
     SS->>ER: findPublishedById(eventId)
     activate ER
-    ER-->>SS: Event
+    ER-->>SS: Event(id, status=published)
     deactivate ER
     SS->>SR: existsByMusicianAndEvent(musicianId, eventId)
     activate SR
@@ -31,13 +31,20 @@ sequenceDiagram
         API-->>UI: 409 Conflict
         UI-->>M: showError("Already signed up for this event")
     else no matching Signup exists
-        SS->>SR: save(Signup)
+        SS->>SR: createIfCapacityAvailable(eventId, musicianId, info, capacity)
         activate SR
-        SR-->>SS: Signup(id)
+        alt unique pair constraint accepts insert
+            SR-->>SS: Signup(id)
+            SS-->>API: SignupCreated(id)
+            API-->>UI: 201 Created
+            UI-->>M: showConfirmation()
+        else concurrent duplicate violates unique pair constraint
+            SR-->>SS: DuplicateSignup
+            SS-->>API: SignupRejected(ALREADY_SIGNED_UP)
+            API-->>UI: 409 Conflict
+            UI-->>M: showError("Already signed up for this event")
+        end
         deactivate SR
-        SS-->>API: SignupCreated(id)
-        API-->>UI: 201 Created
-        UI-->>M: showConfirmation()
     end
     deactivate SS
     deactivate API
