@@ -2,59 +2,58 @@ sequenceDiagram
     autonumber
     actor MA as Musician A
     actor MB as Musician B
+    participant UI as WebClient
     participant API as SignupController
     participant SS as SignupService
     participant ER as EventRepository
     participant SR as SignupRepository
-    participant DB as Database
-    Note over MA,DB: Scenario 12 - Concurrent signups cannot exceed Event.capacity
+    participant NS as NotificationService
+    Note over MA,NS: Scenario 12 - Concurrent signups cannot exceed Event.capacity
+    Note over MA,NS: Given Event 1 has capacity 5 and 4 Signups already exist
     par Musician A request
-        MA->>API: POST signup(Event 1)
+        MA->>UI: submitSignup(eventId=1, info=Available)
+        activate UI
+        UI->>API: POST /events/1/signups
         activate API
-        API->>SS: createSignup(A, 1)
+        API->>SS: createSignup(musicianId=A, eventId=1, info=Available)
         activate SS
-        SS->>ER: findById(1)
+        SS->>ER: findPublishedById(1)
         activate ER
-        ER-->>SS: Event(capacity=5)
+        ER-->>SS: Event(id=1, band_id=3, capacity=5)
         deactivate ER
-        SS->>SR: insertIfBelowCapacity(A, 1, 5)
+        SS->>SR: createIfCapacityAvailable(1, A, Available, 5)
         activate SR
-        SR->>DB: serializable conditional insert
-        activate DB
-        DB-->>SR: inserted (count 4 to 5)
-        deactivate DB
-        SR-->>SS: Signup(id=A)
+        SR-->>SS: Signup(id=21)
         deactivate SR
-        SS-->>API: SignupCreated(A)
-        API-->>MA: 201 Created
+        SS->>NS: notifyBandOfSignup(signupId=21, bandId=3)
+        activate NS
+        NS-->>SS: notificationsRecorded(email, site)
+        deactivate NS
+        SS-->>API: SignupCreated(21)
+        API-->>UI: 201 Created
+        UI-->>MA: showConfirmation()
         deactivate SS
         deactivate API
+        deactivate UI
     and Musician B request
-        MB->>API: POST signup(Event 1)
+        MB->>UI: submitSignup(eventId=1, info=Available)
+        activate UI
+        UI->>API: POST /events/1/signups
         activate API
-        API->>SS: createSignup(B, 1)
+        API->>SS: createSignup(musicianId=B, eventId=1, info=Available)
         activate SS
-        SS->>ER: findById(1)
+        SS->>ER: findPublishedById(1)
         activate ER
-        ER-->>SS: Event(capacity=5)
+        ER-->>SS: Event(id=1, band_id=3, capacity=5)
         deactivate ER
-        loop retry on serialization conflict (bounded)
-            SS->>SR: insertIfBelowCapacity(B, 1, 5)
-            activate SR
-            SR->>DB: serializable conditional insert
-            activate DB
-            alt transaction conflicts with A
-                DB-->>SR: serialization conflict
-                SR-->>SS: retryable
-            else capacity is already reached
-                DB-->>SR: zero rows inserted
-                SR-->>SS: EVENT_FULL
-            end
-            deactivate DB
-            deactivate SR
-        end
+        SS->>SR: createIfCapacityAvailable(1, B, Available, 5)
+        activate SR
+        SR-->>SS: CapacityReached
+        deactivate SR
         SS-->>API: SignupRejected(EVENT_FULL)
-        API-->>MB: 409 Event full
+        API-->>UI: 409 Conflict
+        UI-->>MB: showError("Event full")
         deactivate SS
         deactivate API
+        deactivate UI
     end
