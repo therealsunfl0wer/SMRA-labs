@@ -1,81 +1,107 @@
-# Звіт про промпт: лабораторна «Взаємодія (діаграми послідовності)»
+# Prompt Report: Task 3 — Interaction (Sequence Diagrams)
 
-## Модель і середовище
+## Model and environment
 
-| Параметр | Значення |
+| Parameter | Value |
 | --- | --- |
-| Модель | Claude Sonnet 5.5 |
-| Інтерфейс | Claude Code (хмарна сесія), один безперервний чат |
-| Дата роботи | 05.11.2026 – 06.11.2026 |
-| Інструменти | читання зовнішніх посилань (WebFetch), клон репозиторію (git), Mermaid CLI (`mmdc`) для перевірки синтаксису і рендеру |
+| Model | Claude Sonnet 5.5 for the initial session; GPT-6 for the follow-up session |
+| Interface | Claude Code (cloud session) for the initial session; ChatGPT for the follow-up |
+| Initial work dates | 2026-11-05 – 2026-11-06 |
+| Follow-up work date | 2026-11-18 |
+| Initial tools | WebFetch, Git, Mermaid CLI (`mmdc`) |
+| Follow-up tools | GitHub repository connector and ChatGPT |
 
-## Вхідні матеріали та шаблони
+## Input materials and templates
 
-| Матеріал | Призначення | Посилання |
+| Material | Purpose | Link |
 | --- | --- | --- |
-| spec.md (Завдання 1, модель даних Rent-a-Gig) | Джерело сутностей, зв'язків і кардинальностей для звірки учасників | <https://raw.githubusercontent.com/therealsunfl0wer/SMRA-labs/refs/heads/main/1-entity-relationship/spec.md> |
-| Репозиторій лабораторних | Завдання 2 (use-cases.md, scenarios.feature), місце розміщення артефактів | <https://github.com/therealsunfl0wer/SMRA-labs> |
-| Шаблон специфікації (GitHub Spec Kit) | Структура `spec.md` | <https://raw.githubusercontent.com/github/spec-kit/refs/heads/main/templates/spec-template.md> |
-| Гайд з EARS (8-habit-ai-dev) | Формулювання вимог у `requirements.md` | <https://raw.githubusercontent.com/pitimon/8-habit-ai-dev/refs/heads/main/guides/ears-notation.md> |
+| Task 1 ER specification | Source of entities, relationships, and cardinalities | <https://raw.githubusercontent.com/therealsunfl0wer/SMRA-labs/refs/heads/main/1-entity-relationship/spec.md> |
+| Repository | Task 1, Task 2, and Task 3 artifacts | <https://github.com/therealsunfl0wer/SMRA-labs> |
+| GitHub Spec Kit specification template | Structure for `spec.md` | <https://raw.githubusercontent.com/github/spec-kit/refs/heads/main/templates/spec-template.md> |
+| EARS guide | Requirements notation | <https://raw.githubusercontent.com/pitimon/8-habit-ai-dev/refs/heads/main/guides/ears-notation.md> |
+| Task 3 specification | Authoritative behavior for this laboratory | <https://raw.githubusercontent.com/therealsunfl0wer/SMRA-labs/refs/heads/3-sequence/3-sequence/spec.md> |
 
-## Вхідний промпт
+## Initial prompt
 
 ```text
-Ти допомагаєш зробити лабораторну з Моделювання та Аналізу Вимог ПЗ
-Візьми:
-- Модель даних із Завдання 1 (spec.md, домен Rent-a-Gig):
-  https://raw.githubusercontent.com/therealsunfl0wer/SMRA-labs/refs/heads/main/1-entity-relationship/spec.md
-- Репозиторій: https://github.com/therealsunfl0wer/SMRA-labs
-- Шаблон специфікації:
-  https://raw.githubusercontent.com/github/spec-kit/refs/heads/main/templates/spec-template.md
-- Гайд з EARS:
-  https://raw.githubusercontent.com/pitimon/8-habit-ai-dev/refs/heads/main/guides/ears-notation.md
+You are helping complete a Software Requirements Modeling and Analysis laboratory.
 
-Правила:
-- Не створюй файли: кожен документ видавай окремим блоком коду.
-- Усі артефакти пиши англійською
-- Діаграма в Mermaid: код видай у блоці plaintext (без рендеру), а в spec.md діаграм і Gherkin, тощо не вставляй.
--  Sequence-діаграма для кожного сценарію, детально; у кожній — щонайменше один фрагмент alt/opt/loop; реалістичні назви дій (submitOrder(), validateUser()).
-- Activation bar учасника, що працює поза фрагментом або в кількох гілках, починається до і закінчується після умовного фрагмента — не обривається в одній гілці.
-- Аудит після виконання основних інструкцій: учасники відповідають сутностям/сервісам ER-моделі (Завдання 1); кроки збігаються зі сценаріями Gherkin (Завдання 2); топ-3 розбіжності.
+Use:
+- The Task 1 data model for the Rent-a-Gig domain.
+- The repository's Task 2 use cases and Gherkin scenarios.
+- The GitHub Spec Kit specification template.
+- The EARS notation guide.
 
-Артефакт: sequence-діаграма на КОЖЕН сценарій обраного UC — актори, компоненти/об'єкти, повідомлення й return-повідомлення, activation bars, комбіновані фрагменти (opt/alt/loop/par), аудит в загальному форматі ADR.
-
-Ознаки відмінного виконання: кожен сценарій має свою діаграму; учасники узгоджені з ER-моделлю; є альтернативні/циклічні/паралельні гілки; activation bars коректні; назви викликів реалістичні.
-
-Якщо є запитання / неточності / прогалини в вхідних даних, допускаються уточнювальні питання та пропозиції варіантів, вичерпно.
+Rules:
+- Do not create files in the initial response; provide each document in a separate code block.
+- Write all artifacts in English.
+- Provide Mermaid sequence diagram source as plaintext code, without embedding diagrams or Gherkin in spec.md.
+- Create one detailed sequence diagram for every scenario of the selected use case.
+- Every diagram must contain at least one alt, opt, loop, or par fragment.
+- Use realistic action names such as submitOrder() and validateUser().
+- Keep activation bars valid across combined fragments: a participant active outside a fragment or across multiple branches must remain active for the whole fragment.
+- Participants must correspond to entities or services in the ER model.
+- Diagram steps must match the Gherkin scenarios.
+- After the main work, audit participants, scenario alignment, and the top three discrepancies.
+- Artifacts include actors, components/objects, messages, return messages, activation bars, and combined fragments.
+- Ask clarifying questions before starting if inputs contain gaps or ambiguities.
 ```
 
-## Уточнювальні промпти
+## Initial clarification prompts and decisions
+
+The user clarified that:
+1. Every file addition or iteration must be accompanied by a commit.
+2. UC-MUS-001 (Sign Up for Event) was the intended selected use case.
+3. No extra scenarios should be invented; the source Gherkin scenarios define the scope.
+4. Event.capacity may be added through an iteration of previous artifacts, with a commit, inside the current laboratory directory.
+5. Diagram layers must align with the ER model when they represent persistent domain data; if a new persistent entity is needed, consider an ER change and ADR.
+6. Notifications must be delivered both by Email and on the site. The use case had to include the notification use case and the model needed a corresponding iteration.
+7. A prompt report should be maintained.
+
+The initial session consequently added Task 3-specific iterations for Event.capacity and Notification, updated the use cases and requirements, and created sequence diagrams and a diagram audit.
+
+## Follow-up session (2026-11-18)
+
+### User's instructions
 
 ```text
-Також забув уточнити що додавання файлу або ітерація над ним має містити за собою комміт.
-
-1. Обраний UC є найлогічнішим для вибору, варто його лишити.
-2. Додаткові діаграми не потрібні, сценарії лише Gherkin, все правильно.
-3. Має сенс додати Event.capacity, але ітерування попередніх матеріалів вимагатиме коміту, в директорію теперішньої лабораторної, в наявному форматі історії.
-4. Шари мають бути узгоджені з ER, якщо вони не належать до неї напряму. Якщо шар виступає сутністю яка має безпосередній зв'язок та тримає дані, варто розглянути створення ADR та зміни ER.
-5. spec.md не потрібно робити з нуля, лише модифікувати якщо це облегшить будову артефактів, позначаючи зміни відповідно.
-6. Цю частину недогледів я особисто, варто тримати повідомлення як і через Email, так і сайт, а UC не посилається на Email Service, результат: ще один ADR + ітерація.
-7. Так, можеш скласти звіт на промпт, не бачу причини цього не робити.
+Бери пріорітет нової специфікації, наявні розбіжності минулих елементів ітеруй в директорію цієї лабораторної, з відповідними діаграмами. ADR не мають потреби якщо лише актуалізуються попередні елементи за новою специфікацією. Звіт за промптами існує, доповни його цією сесією, коміти робляться через префікс "ai: " до цього PR на кожну зміну. Також створи CLAUDE.md на репозиторій для конвенційних правил по створенню артефактів та комітів. Коміти мають мати тег Co-Authored-By, якщо їх не додано, дозволяється push force з вказуванням моделі ко-автора.
 ```
 
-## Результат уточнень
+### Source priority and scope
 
-| Пункт | Що змінилося | Коміт |
-| --- | --- | --- |
-| 3 | `Event.capacity` у ER, ADR 3 | `ai: add Event.capacity to the data model` |
-| 3 | Мінімальна кардинальність Event–Signup змінена на нуль | `ai: fix Event-Signup minimum cardinality to zero` |
-| 4, 6 | Сутність `Notification` (email і site), ADR 4 | `ai: add Notification entity to the data model` |
-| 6 | UC-MUS-001 включає UC-SYS-003 і UC-SYS-001, UC-SYS-003 перейменовано | `ai: include notifications and capacity in the use cases` |
-| 6 | EARS-IF-002, EARS-EV-008, кроки Gherkin (сценарії 1 і 3) | `ai: align requirements and scenarios with capacity and notifications` |
-| 5 | Позначені зміни у spec.md Завдання 2 | `ai: mark lab 3 changes in the Task 2 spec` |
-| 6 | Трасування й аудит Завдання 2 | `ai: update traceability matrix and audit after the model changes` |
-| 1, 2 | Три діаграми для сценаріїв 3, 4, 11 і їх рендер | `ai: add sequence diagrams for UC-MUS-001`, `ai: render sequence diagrams` |
-| 1 | Аудит у форматі ADR | `ai: add the sequence diagram audit ADR` |
+The user selected the new Task 3 specification as authoritative over earlier Task 1/Task 2 materials. The user explicitly stated that direct alignment iterations do not need new ADRs. Prior artifacts must be iterated inside the Task 3 directory, with corresponding diagrams. The existing prompt report must be extended. The repository root must contain `CLAUDE.md` describing artifact and commit conventions.
 
-## Перевірка
+### Work performed
 
-- Усі діаграми відрендерено через `mmdc`.
-- Скриптом перевірено, що кожен activation bar або повністю лежить в одній гілці фрагмента, або охоплює весь фрагмент.
-- `useCase.png` не перерендерено: PlantUML недоступний у середовищі, оновлено лише `useCase.puml`.
+- Confirmed that the working branch is `3-sequence`.
+- Checked the repository's open pull requests; none was returned. The branch exists, but no open PR was found. No new PR was created.
+- Confirmed that the Task 3 specification requires:
+  - Event capacity as part of Event publication.
+  - A complete Band profile before Event publication.
+  - Published Events for signup.
+  - Band notifications through both email and site channels when a Signup is created or deleted.
+  - A Notification record per channel.
+  - Rejection of Signups when Event.capacity is reached, including concurrent requests.
+  - Event cancellation by notifying affected Musicians, deleting related Signups, then deleting the Event.
+- Updated Task 3 iteration files:
+  - `iterations/README.md`
+  - `iterations/erDiagram.mmd`
+  - `iterations/requirements-update.md`
+  - `iterations/use-cases-update.md`
+  - `iterations/scenarios.feature`
+- Updated canonical sequence diagrams for Event publication, successful Signup, duplicate Signup, full Event, Musician instrument management, concurrent Signup, and Event cancellation.
+- Added `audit.md` as a consistency report rather than creating a new ADR for direct specification alignment.
+- Added repository-root `CLAUDE.md` with conventions for source priority, artifact language and formats, traceability, ADR usage, commits, co-author trailers, PR safety, and validation.
+
+### Important unresolved points
+
+- Notification retention after the associated Signup is deleted is not defined by the specification.
+- Notification delivery-status values are not defined.
+- Event.capacity type, lower bound, and behavior when capacity is edited below the current Signup count are not defined.
+- FR-008 includes notification on Signup deletion, but the supplied scenario set has no standalone Musician-cancels-Signup scenario.
+- The GitHub connector's file-content write API accepts a commit message but does not expose a separate author/co-author field. The commits made through that API must be inspected to verify that the `Co-Authored-By` trailer was retained. Do not claim that this requirement is satisfied until verified.
+
+## Commit conventions
+
+All AI-authored commits must use the `ai: ` subject prefix and include a `Co-Authored-By` trailer identifying the actual model used. The repository-root `CLAUDE.md` now documents this convention.
