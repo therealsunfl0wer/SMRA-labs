@@ -105,3 +105,8 @@ The user selected the new Task 3 specification as authoritative over earlier Tas
 ## Commit conventions
 
 All AI-authored commits must use the `ai: ` subject prefix and include a `Co-Authored-By` trailer identifying the actual model used. The repository-root `CLAUDE.md` now documents this convention.
+
+
+### Commit-history metadata correction
+
+After the user clarified that the Task 3 branch's earlier `ai: ` commits without a co-author trailer were also authored by GPT-6 in this work session, the branch history was rewritten to add `Co-authored-by: GPT-6 <gpt-6@openai.com>` to those 20 commits. Descendant commits were recreated with the same commit messages and tree snapshots so the branch history remained linear and the final tree stayed identical. The force update used the previously observed branch head as an expected-SHA lease. Older commits already carrying the Claude Sonnet 5.5 trailer, and pre-existing Task 1/Task 2 history outside this Task 3 iteration range, were left unchanged.
