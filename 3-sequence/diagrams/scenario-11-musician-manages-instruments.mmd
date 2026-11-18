@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as MusicianController
+    participant MS as MusicianService
+    participant MR as MusicianRepository
+    participant IR as InstrumentRepository
+    Note over M,IR: Scenario 11 - Musician associates an Instrument with their profile
+    M->>UI: addInstrument(Guitar)
+    activate UI
+    UI->>API: PUT /musicians/me/instruments
+    activate API
+    API->>MS: addInstrument(musicianId, instrumentId)
+    activate MS
+    MS->>MR: findById(musicianId)
+    activate MR
+    MR-->>MS: Musician
+    deactivate MR
+    MS->>IR: findById(instrumentId)
+    activate IR
+    IR-->>MS: Instrument(Guitar)
+    deactivate IR
+    MS->>MR: associateInstrumentIfAbsent(musicianId, instrumentId)
+    activate MR
+    MR-->>MS: associationCreated
+    deactivate MR
+    opt instrument was already associated
+        MS->>MR: confirmExistingAssociation(musicianId, instrumentId)
+        activate MR
+        MR-->>MS: associationExists
+        deactivate MR
+    end
+    MS-->>API: InstrumentAssociated()
+    API-->>UI: 200 OK
+    UI-->>M: displayProfileInstrument(Guitar)
+    deactivate MS
+    deactivate API
+    deactivate UI
