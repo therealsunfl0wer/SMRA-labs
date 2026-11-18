@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    actor Admin as Administrator
+    participant UI as AdminClient
+    participant API as GenreController
+    participant GS as GenreService
+    participant GR as GenreRepository
+    participant RR as ReleaseRepository
+    Note over Admin,RR: Scenario 15 - Genre deletion is blocked while Releases reference it
+    Admin->>UI: deleteGenre(genreId)
+    activate UI
+    UI->>API: DELETE /genres/{id}
+    activate API
+    API->>GS: deleteGenre(genreId)
+    activate GS
+    GS->>GR: findById(genreId)
+    activate GR
+    GR-->>GS: Genre
+    deactivate GR
+    GS->>RR: existsByGenreId(genreId)
+    activate RR
+    RR-->>GS: true
+    deactivate RR
+    alt one or more Releases reference the Genre
+        GS-->>API: DeletionRejected(GENRE_IN_USE)
+        API-->>UI: 409 Conflict
+        UI-->>Admin: showError("Genre referenced by existing releases")
+    else no Release references the Genre
+        GS->>GR: delete(genreId)
+        activate GR
+        GR-->>GS: deleted
+        deactivate GR
+        GS-->>API: GenreDeleted()
+        API-->>UI: 204 No Content
+        UI-->>Admin: showSuccess()
+    end
+    deactivate GS
+    deactivate API
+    deactivate UI

@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as BandController
+    participant BS as BandSearchService
+    participant GR as GenreRepository
+    participant BR as BandRepository
+    Note over M,BR: Scenario 8 - Musician filters Bands by Genre
+    M->>UI: filterBandsByGenre("Rock")
+    activate UI
+    UI->>API: GET /bands?genre=Rock
+    activate API
+    API->>BS: findBandsByGenre("Rock")
+    activate BS
+    BS->>GR: findByName("Rock")
+    activate GR
+    GR-->>BS: Genre(id=1)
+    deactivate GR
+    alt Genre exists and matching Bands are found
+        BS->>BR: findByGenreId(1)
+        activate BR
+        BR-->>BS: [Band 1]
+        deactivate BR
+        BS-->>API: matchingBands([Band 1])
+        API-->>UI: 200 OK [Band 1]
+        UI-->>M: displayBands([Band 1])
+    else Genre does not exist or has no matching Bands
+        BS-->>API: matchingBands([])
+        API-->>UI: 200 OK []
+        UI-->>M: displayEmptyResults()
+    end
+    deactivate BS
+    deactivate API
+    deactivate UI

@@ -20,9 +20,9 @@
 
 1. **Email Service**
    - Description: External system for sending email notifications
-   - Goals: Deliver notifications to Musicians and Band Members
+   - Goals: Deliver the email channel of notifications to Bands, Musicians and Band Members
    - Characteristics: Third-party service
-   - Relationships: Used by Send Email Notification use case
+   - Relationships: Used by Send Notification use case
 
 2. **Streaming Platform**
    - Description: External platform for hosting music releases
@@ -42,11 +42,12 @@
   1. Musician views Event details (UC-MUS-005)
   2. Musician clicks "Sign Up"
   3. System creates Signup record
-- Postconditions: Signup exists linking Musician to Event
-- Relationships: **extends** UC-MUS-005 (View Event Details)
+  4. System notifies the Band about the new Signup (UC-SYS-003)
+- Postconditions: Signup exists linking Musician to Event, and the Band has received a Notification by email and on the site
+- Relationships: **extends** UC-MUS-005 (View Event Details), **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Notification)
 - Extensions:
   - 2a. Musician already signed up: System prevents duplicate
-  - 2b. Event at capacity: System rejects signup
+  - 2b. Event at capacity (number of Signups reached Event.capacity): System rejects signup
 
 #### UC-MUS-002: Create Musician Profile
 
@@ -192,7 +193,7 @@
   4. Musician accepts invitation
   5. System associates Musician with Band
 - Postconditions: Musician is Band Member
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 #### UC-BM-004: Leave Band
 
@@ -211,7 +212,7 @@
 - Main Success Scenario:
   1. Band Member selects "Publish Event"
   2. System displays Event form
-  3. Band Member enters Event details (name, info, location, date)
+  3. Band Member enters Event details (name, info, location, date, capacity)
   4. Band Member submits form
   5. System validates and creates Event
 - Postconditions: New Event exists linked to Band
@@ -225,7 +226,7 @@
   1. Band Member selects Event to cancel
   2. System deletes Event
 - Postconditions: Event is removed
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-003 (Send Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 #### UC-BM-007: Review Event Signups
 
@@ -248,7 +249,7 @@
   4. Band Member submits form
   5. System validates and creates Release
 - Postconditions: New Release exists linked to Band and Genre
-- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-002 (Validate Release Link), **includes** UC-SYS-003 (Send Email Notification), **includes** UC-SYS-004 (Verify Band Membership)
+- Relationships: **includes** UC-SYS-001 (Validate Input), **includes** UC-SYS-002 (Validate Release Link), **includes** UC-SYS-003 (Send Notification), **includes** UC-SYS-004 (Verify Band Membership)
 
 ### System Use Cases
 
@@ -275,16 +276,17 @@
 - Postconditions: Link is validated or error is returned
 - Relationships: Interacts with Streaming Platform
 
-#### UC-SYS-003: Send Email Notification
+#### UC-SYS-003: Send Notification
 
 - Primary Actor: System
-- Description: Sends email notifications to Musicians and Band Members via Email Service
+- Description: Delivers a notification through two channels: email via Email Service (to Band.email or Musician.email) and on the site (stores a Notification record, one per channel)
 - Preconditions: Notification event triggered
 - Main Success Scenario:
   1. System prepares notification
-  2. System sends to Email Service
+  2. System sends the email channel to Email Service
   3. Email Service delivers email
-- Postconditions: Notification sent
+  4. System records a Notification for each channel (channel, status)
+- Postconditions: Notification sent by email and recorded for the site
 - Relationships: Interacts with Email Service
 
 #### UC-SYS-004: Verify Band Membership

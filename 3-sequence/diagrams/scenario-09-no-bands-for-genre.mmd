@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as BandController
+    participant BS as BandSearchService
+    participant GR as GenreRepository
+    participant BR as BandRepository
+    Note over M,BR: Scenario 9 - Genre filter returns no matching Bands
+    M->>UI: selectGenre("Classical")
+    activate UI
+    UI->>API: GET /bands?genre=Classical
+    activate API
+    API->>BS: findBandsByGenre("Classical")
+    activate BS
+    BS->>GR: findByName("Classical")
+    activate GR
+    GR-->>BS: Genre(id) or notFound
+    deactivate GR
+    alt Genre does not exist
+        BS-->>API: emptyResult()
+    else Genre exists but has no Bands
+        BS->>BR: findByGenreId(genreId)
+        activate BR
+        BR-->>BS: []
+        deactivate BR
+        BS-->>API: emptyResult()
+    end
+    API-->>UI: 200 OK []
+    UI-->>M: displayEmptyState("No bands found for this genre")
+    deactivate BS
+    deactivate API
+    deactivate UI

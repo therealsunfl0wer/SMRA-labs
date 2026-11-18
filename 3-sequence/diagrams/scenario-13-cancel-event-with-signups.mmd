@@ -1,0 +1,73 @@
+sequenceDiagram
+    autonumber
+    actor BM as Band Member
+    participant UI as WebClient
+    participant API as EventController
+    participant ES as EventService
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    participant NS as NotificationService
+    participant MR as MusicianRepository
+    participant NR as NotificationRepository
+    participant Email as EmailService
+    Note over BM,Email: Scenario 13 - Band cancels an Event and notifies affected Musicians
+    BM->>UI: cancelEvent(eventId)
+    activate UI
+    UI->>API: DELETE /events/{eventId}
+    activate API
+    API->>ES: cancelEvent(eventId, bandMemberId)
+    activate ES
+    ES->>ER: findById(eventId)
+    activate ER
+    ER-->>ES: Event(band_id)
+    deactivate ER
+    ES->>ES: verifyBandMembership(bandMemberId, band_id)
+    alt Band Member belongs to the Event owner Band
+        ES->>SR: findByEventId(eventId)
+        activate SR
+        SR-->>ES: [Signup...]
+        deactivate SR
+        loop for each affected Signup
+            ES->>NS: notifyMusicianOfCancellation(signupId, musicianId)
+            activate NS
+            NS->>MR: findById(musicianId)
+            activate MR
+            MR-->>NS: Musician(email)
+            deactivate MR
+            par email channel
+                NS->>Email: sendEmail(Musician.email, eventCancelled)
+                activate Email
+                Email-->>NS: deliveryAccepted(messageId)
+                deactivate Email
+                NS->>NR: save(Notification(signupId, channel=email))
+                activate NR
+                NR-->>NS: Notification(id)
+                deactivate NR
+            and site channel
+                NS->>NR: save(Notification(signupId, channel=site))
+                activate NR
+                NR-->>NS: Notification(id)
+                deactivate NR
+            end
+            NS-->>ES: notificationsRecorded()
+            deactivate NS
+        end
+        ES->>SR: deleteByEventId(eventId)
+        activate SR
+        SR-->>ES: deletedCount
+        deactivate SR
+        ES->>ER: delete(eventId)
+        activate ER
+        ER-->>ES: deleted
+        deactivate ER
+        ES-->>API: EventCancelled()
+        API-->>UI: 204 No Content
+        UI-->>BM: showCancellationComplete()
+    else Band Member is not authorized
+        ES-->>API: AccessDenied
+        API-->>UI: 403 Forbidden
+        UI-->>BM: showAccessDenied()
+    end
+    deactivate ES
+    deactivate API
+    deactivate UI

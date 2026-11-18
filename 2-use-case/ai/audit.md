@@ -6,7 +6,7 @@
 
   **Requirement ID** | **Issue** | **Problem** | **Fix Applied** |
  ------------------- | ----------- | ------------- | ----------------- |
- EARS-IF-002 | "Event reaches capacity" | "capacity" attribute is not defined in the data model (Event has no capacity field) | Add `capacity: int` to Event entity or remove the requirement |
+ EARS-IF-002 | "Event reaches capacity" | "capacity" attribute is not defined in the data model (Event has no capacity field) | Fixed in lab 3: `Event.capacity` added to the data model (ADR 3) and EARS-IF-002 rewritten against it |
  EARS-ST-002 | "active Signups" | "active" status is not an attribute of Signup entity (Signup has: id, event_id, musician_id, info) | Add `status: string` to Signup entity or remove "active" qualifier |
  EARS-OP-002 | "instrument-based Musician matching" | "matching" mechanism is undefined (no algorithm or criteria specified) | Define matching rules (e.g., exact instrument match, partial match) |
 
@@ -41,7 +41,7 @@ All documented include relationships are valid and bidirectional:
 
 - **Validation**: UC-SYS-001 (Validate Input) included in all UC that modify data
 - **Membership**: UC-SYS-004 (Verify Band Membership) included in all Band Member UC
-- **Notification**: UC-SYS-003 (Send Email Notification) included where external communication is needed
+- **Notification**: UC-SYS-003 (Send Notification) included in UC-MUS-001, UC-BM-003, UC-BM-006 and UC-BM-008 where Bands or Musicians are notified by email and on the site
 - **Link Validation**: UC-SYS-002 (Validate Release Link) included in Release-related UC
 
 ### Extend Relationships
@@ -61,7 +61,8 @@ All extend relationships are valid:
 
 - **Musician**: id (PK), name, bio, email
 - **Band**: id (PK), name, email, info
-- **Event**: id (PK), band_id (FK), name, info, location, date
+- **Event**: id (PK), band_id (FK), name, info, location, date, capacity
+- **Notification**: id (PK), signup_id (FK), channel, status
 - **Instrument**: id (PK), name
 - **Signup**: id (PK), event_id (FK), musician_id (FK), info
 - **Release**: id (PK), band_id (FK), genre_id (FK), name, link, date
@@ -78,6 +79,7 @@ All extend relationships are valid:
 - Band ↔ Release: 1:N
 - Band ↔ Genre: M:N
 - Event ↔ Signup: 1:N
+- Signup ↔ Notification: 1:N
 - Release ↔ Genre: N:1
 
 ### Verification Results
@@ -97,9 +99,10 @@ All extend relationships are valid:
  ------------ | ---------------------- | ------------------------ | ------------------------- |
  Musician | id, name, bio, email | UC-MUS-001–011, UC-BM-001–008 | Scenarios 3,4,7,8,9,10,11 |
  Band | id, name, email, info | UC-BM-001–008, UC-MUS-006, UC-MUS-008 | Scenarios 1,2,5,6,9,12,13 |
- Event | id, band_id, name, info, location, date | UC-BM-005, UC-BM-006, UC-BM-007, UC-MUS-001, UC-MUS-005, UC-MUS-007 | Scenarios 1,2,3,4,11,12 |
+ Event | id, band_id, name, info, location, date, capacity | UC-BM-005, UC-BM-006, UC-BM-007, UC-MUS-001, UC-MUS-005, UC-MUS-007 | Scenarios 1,2,3,4,11,12 |
  Instrument | id, name | UC-MUS-007, UC-MUS-009, UC-BM-002, UC-BM-008 | Scenarios 9,10 |
  Signup | id, event_id, musician_id, info | UC-MUS-001, UC-MUS-009, UC-MUS-010, UC-MUS-011, UC-BM-007 | Scenarios 3,4,11,12 |
+ Notification | id, signup_id, channel, status | UC-MUS-001, UC-SYS-003 | Scenario 3 |
  Release | id, band_id, genre_id, name, link, date | UC-BM-008, UC-MUS-008 | Scenarios 5,6,13 |
  Genre | id, name | UC-MUS-006, UC-BM-008 | Scenarios 7,8,13 |
 
@@ -116,6 +119,7 @@ All extend relationships are valid:
  Band ↔ Release | 1:N | UC-BM-008 (Publish Release) | Scenarios 5,6 |
  Band ↔ Genre | M:N | UC-BM-008 (Publish Release) | Scenario 13 |
  Event ↔ Signup | 1:N | UC-MUS-001 (Sign Up), UC-BM-007 (Review Signups) | Scenarios 3,4,11,12 |
+ Signup ↔ Notification | 1:N | UC-MUS-001, UC-SYS-003 | Scenario 3 |
  Release ↔ Genre | N:1 | UC-BM-008 (Publish Release) | Scenario 13 |
 
 ---
@@ -128,11 +132,11 @@ All extend relationships are valid:
 - **Artifacts**: Band is **not an actor**; Band Member (a specialized Musician) performs all Band-related actions
 - **Impact**: **None** — Correct design decision. Band is a data entity, not a user role. Band Member acts on behalf of Band.
 
-### Discrepancy 2: Missing Capacity Attribute in Event
+### Discrepancy 2: Missing Capacity Attribute in Event (resolved in lab 3)
 
 - **Spec**: Event entity has attributes (id, band_id, name, info, location, date) — **no capacity field**
 - **Artifacts**: EARS-IF-002 references **"Event reaches capacity"** without a defined attribute
-- **Impact**: **Medium** — Requirement cannot be implemented as specified. Either add `capacity: int` to Event or remove EARS-IF-002.
+- **Impact**: **Medium** — Requirement could not be implemented as specified. **Resolved in lab 3**: `Event.capacity` added to the data model (ADR 3), EARS-IF-002 and spec.md updated.
 
 ### Discrepancy 3: Undefined "Active" Status for Signup
 
@@ -174,7 +178,15 @@ All extend relationships are valid:
  UC-BM-003 | Invite Musician to Band | No scenario in scenarios.feature | Medium |
  UC-BM-004 | Leave Band | No scenario in scenarios.feature | Medium |
  UC-BM-007 | Review Event Signups | No scenario in scenarios.feature | Medium |
- UC-SYS-003 | Send Email Notification | No scenario in scenarios.feature | Low |
  UC-SYS-004 | Verify Band Membership | No scenario in scenarios.feature | Medium |
 
 **Total Scenarios in scenarios.feature: 13**
+
+---
+
+## 6. Changes made in lab 3
+
+- `Event.capacity` added to the data model; discrepancy 2 and the EARS-IF-002 weak formulation are resolved (ADR 3).
+- Event-Signup minimum cardinality changed from "one or many" to "zero, one, or many" in the data model.
+- `Notification` entity added; UC-SYS-003 renamed to Send Notification and included by UC-MUS-001; EARS-EV-008 and the notification steps of scenario 3 added (ADR 4). UC-SYS-003 is no longer uncovered.
+- UC-MUS-001 now lists the UC-SYS-001 include that the use case diagram already had.

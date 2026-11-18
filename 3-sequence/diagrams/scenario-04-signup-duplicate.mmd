@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant MR as MusicianRepository
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    Note over M,SR: Scenario 4 - Duplicate Signup is rejected
+    M->>UI: submitSignup(eventId, info)
+    activate UI
+    UI->>API: POST /events/{eventId}/signups
+    activate API
+    API->>SS: createSignup(musicianId, eventId, info)
+    activate SS
+    SS->>MR: findById(musicianId)
+    activate MR
+    MR-->>SS: Musician
+    deactivate MR
+    SS->>ER: findPublishedById(eventId)
+    activate ER
+    ER-->>SS: Event(id, status=published)
+    deactivate ER
+    SS->>SR: existsByMusicianAndEvent(musicianId, eventId)
+    activate SR
+    SR-->>SS: true
+    deactivate SR
+    alt matching Signup already exists
+        SS-->>API: SignupRejected(ALREADY_SIGNED_UP)
+        API-->>UI: 409 Conflict
+        UI-->>M: showError("Already signed up for this event")
+    else no matching Signup exists
+        SS->>SR: createIfCapacityAvailable(eventId, musicianId, info, capacity)
+        activate SR
+        alt unique pair constraint accepts insert
+            SR-->>SS: Signup(id)
+            SS-->>API: SignupCreated(id)
+            API-->>UI: 201 Created
+            UI-->>M: showConfirmation()
+        else concurrent duplicate violates unique pair constraint
+            SR-->>SS: DuplicateSignup
+            SS-->>API: SignupRejected(ALREADY_SIGNED_UP)
+            API-->>UI: 409 Conflict
+            UI-->>M: showError("Already signed up for this event")
+        end
+        deactivate SR
+    end
+    deactivate SS
+    deactivate API
+    deactivate UI

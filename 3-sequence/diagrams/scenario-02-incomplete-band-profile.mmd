@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    actor BM as Band Member
+    participant UI as WebClient
+    participant API as EventController
+    participant ES as EventService
+    participant BR as BandRepository
+    participant ER as EventRepository
+    Note over BM,ER: Scenario 2 - Publishing is rejected for an incomplete Band profile
+    BM->>UI: submitEventForm(details)
+    activate UI
+    UI->>API: POST /bands/1/events
+    activate API
+    API->>ES: publishEvent(bandId, details)
+    activate ES
+    ES->>BR: findById(bandId)
+    activate BR
+    BR-->>ES: Band(profileComplete=false)
+    deactivate BR
+    ES->>ES: validateBandProfile(band)
+    alt required Band profile fields are missing
+        ES-->>API: ValidationError(INCOMPLETE_BAND_PROFILE)
+        API-->>UI: 422 Unprocessable Entity
+        UI-->>BM: showProfileValidationError()
+    else profile is complete
+        ES->>ER: save(Event(details))
+        activate ER
+        ER-->>ES: Event(id)
+        deactivate ER
+        ES-->>API: EventPublished(id)
+        API-->>UI: 201 Created
+        UI-->>BM: showSuccess()
+    end
+    deactivate ES
+    deactivate API
+    deactivate UI

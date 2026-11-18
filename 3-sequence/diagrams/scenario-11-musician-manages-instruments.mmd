@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as MusicianController
+    participant MS as MusicianService
+    participant MR as MusicianRepository
+    participant IR as InstrumentRepository
+    Note over M,IR: Scenario 11 - Musician adds an Instrument to their profile
+    M->>UI: addInstrument(instrumentId=1)
+    activate UI
+    UI->>API: PUT /musicians/1/instruments/1
+    activate API
+    API->>MS: addInstrument(musicianId=1, instrumentId=1)
+    activate MS
+    MS->>MR: findById(1)
+    activate MR
+    MR-->>MS: Musician(id=1)
+    deactivate MR
+    MS->>IR: findById(1)
+    activate IR
+    IR-->>MS: Instrument(id=1, name=Guitar)
+    deactivate IR
+    MS->>MR: addInstrument(1, 1)
+    activate MR
+    alt association does not exist
+        MR-->>MS: associationCreated
+        MS-->>API: InstrumentAdded(Guitar)
+        API-->>UI: 200 OK
+        UI-->>M: showInstrumentAdded(Guitar)
+    else association already exists
+        MR-->>MS: associationAlreadyExists
+        MS-->>API: InstrumentAlreadyPresent(Guitar)
+        API-->>UI: 200 OK
+        UI-->>M: showInstrumentAlreadyPresent(Guitar)
+    end
+    deactivate MR
+    deactivate MS
+    deactivate API
+    deactivate UI

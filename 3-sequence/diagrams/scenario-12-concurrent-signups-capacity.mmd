@@ -1,0 +1,59 @@
+sequenceDiagram
+    autonumber
+    actor MA as Musician A
+    actor MB as Musician B
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    participant NS as NotificationService
+    Note over MA,NS: Scenario 12 - Concurrent signups cannot exceed Event.capacity
+    Note over MA,NS: Given Event 1 has capacity 5 and 4 Signups already exist
+    par Musician A request
+        MA->>UI: submitSignup(eventId=1, info=Available)
+        activate UI
+        UI->>API: POST /events/1/signups
+        activate API
+        API->>SS: createSignup(musicianId=A, eventId=1, info=Available)
+        activate SS
+        SS->>ER: findPublishedById(1)
+        activate ER
+        ER-->>SS: Event(id=1, band_id=3, capacity=5)
+        deactivate ER
+        SS->>SR: createIfCapacityAvailable(1, A, Available, 5)
+        activate SR
+        SR-->>SS: Signup(id=21)
+        deactivate SR
+        SS->>NS: notifyBandOfSignup(signupId=21, bandId=3)
+        activate NS
+        NS-->>SS: notificationsRecorded(email, site)
+        deactivate NS
+        SS-->>API: SignupCreated(21)
+        API-->>UI: 201 Created
+        UI-->>MA: showConfirmation()
+        deactivate SS
+        deactivate API
+        deactivate UI
+    and Musician B request
+        MB->>UI: submitSignup(eventId=1, info=Available)
+        activate UI
+        UI->>API: POST /events/1/signups
+        activate API
+        API->>SS: createSignup(musicianId=B, eventId=1, info=Available)
+        activate SS
+        SS->>ER: findPublishedById(1)
+        activate ER
+        ER-->>SS: Event(id=1, band_id=3, capacity=5)
+        deactivate ER
+        SS->>SR: createIfCapacityAvailable(1, B, Available, 5)
+        activate SR
+        SR-->>SS: CapacityReached
+        deactivate SR
+        SS-->>API: SignupRejected(EVENT_FULL)
+        API-->>UI: 409 Conflict
+        UI-->>MB: showError("Event full")
+        deactivate SS
+        deactivate API
+        deactivate UI
+    end

@@ -7,7 +7,7 @@
 
 ### User Story 1 - Band Publishes Event (Priority: P1)
 
-A Band can create and publish Events with details (name, info, location, date). Musicians can discover these events.
+A Band can create and publish Events with details (name, info, location, date, capacity **[CHANGED in lab 3: capacity added]**). Musicians can discover these events.
 
 **Why this priority**: Core functionality enabling the platform's value proposition - connecting musicians with performance opportunities.
 
@@ -31,7 +31,8 @@ A Musician can sign up for any published Event, creating a Signup record with ad
 **Acceptance Scenarios**:
 
 1. **Given** a published Event, **When** a Musician submits signup, **Then** a Signup record is created linking Musician to Event
-2. **Given** an Event at capacity, **When** a Musician tries to sign up, **Then** the system rejects with "Event full" message
+2. **Given** an Event whose Signups equal Event.capacity, **When** a Musician tries to sign up, **Then** the system rejects with "Event full" message
+3. **Given** a published Event, **When** a Musician's Signup is created, **Then** the Band is notified by email and on the site **[ADDED in lab 3]**
 
 ---
 
@@ -114,13 +115,16 @@ A Musician can specify which Instruments they play.
 - **FR-005**: System MUST allow filtering Bands by Genre and Instruments
 - **FR-006**: System MUST validate all entity attributes according to data model
 - **FR-007**: System MUST maintain referential integrity across all relationships
+- **FR-008**: System MUST notify the Band by email and on the site when a Signup is created, recording one Notification per channel **[ADDED in lab 3]**
+- **FR-009**: System MUST reject a Signup when the number of Signups for the Event equals Event.capacity **[ADDED in lab 3]**
 
 ### Key Entities
 
 - **Musician**: User who can join Bands and sign up for Events
 - **Band**: Group that publishes Events and Releases
-- **Event**: Performance opportunity published by a Band
+- **Event**: Performance opportunity published by a Band, with a signup limit (`capacity`) **[CHANGED in lab 3]**
 - **Signup**: Musician's registration for an Event
+- **Notification**: Notice about a Signup delivered to the Band through one channel, `email` or `site` **[ADDED in lab 3]**
 - **Release**: Music publication by a Band (album, EP, single)
 - **Genre**: Music category for Bands, Musicians, and Releases
 - **Instrument**: Music instrument played by Musicians or utilized by Bands
@@ -138,6 +142,12 @@ A Musician can specify which Instruments they play.
 
 - Musicians and Bands register before using platform features
 - All dates use ISO 8601 format (YYYY-MM-DD)
-- Event capacity limits are managed externally (not in data model)
+- ~~Event capacity limits are managed externally (not in data model)~~ Event capacity is stored in `Event.capacity` **[CHANGED in lab 3, ADR 3]**
 - Email addresses are unique per Musician and per Band
 - Validation occurs at API layer before database persistence
+
+## Change log (lab 3)
+
+- Event gains `capacity`; the assumption that capacity is managed externally is replaced (ADR 3).
+- Notification is a new key entity; FR-008 and the third acceptance scenario of user story 2 describe it (ADR 4).
+- FR-009 states the capacity rule that scenario 11 and EARS-IF-002 rely on.

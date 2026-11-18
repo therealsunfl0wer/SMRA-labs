@@ -18,6 +18,7 @@ erDiagram
         string info
         string location
         date date
+        int capacity
     }
     Instrument {
         int id PK
@@ -28,6 +29,12 @@ erDiagram
         int event_id FK
         int musician_id FK
         string info
+    }
+    Notification {
+        int id PK
+        int signup_id FK
+        string channel
+        string status
     }
     Release {
         int id PK
@@ -50,5 +57,6 @@ erDiagram
     Band }o..|{ Instrument : utilizes
     Band ||..o{ Release : owns
     Band }|..|{ Genre : represents
-    Event ||..|{ Signup : contains
+    Event ||..o{ Signup : contains
+    Signup ||..o{ Notification : triggers
     Release }|..|| Genre : belongs

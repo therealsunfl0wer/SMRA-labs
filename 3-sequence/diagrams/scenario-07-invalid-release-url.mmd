@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    actor BM as Band Member
+    participant UI as WebClient
+    participant API as ReleaseController
+    participant RS as ReleaseService
+    participant RP as ReleaseRepository
+    participant SP as StreamingPlatform
+    Note over BM,SP: Scenario 7 - Invalid Release URL is rejected
+    BM->>UI: submitRelease(detailsWithInvalidUrl)
+    activate UI
+    UI->>API: POST /bands/{id}/releases
+    activate API
+    API->>RS: createRelease(bandId, details)
+    activate RS
+    RS->>RS: validateUrlFormat(link)
+    alt URL format is invalid
+        RS-->>API: ValidationError(INVALID_URL_FORMAT)
+        API-->>UI: 422 Unprocessable Entity
+        UI-->>BM: showError("Invalid URL format")
+    else URL format is valid
+        RS->>SP: checkUrlAccessibility(link)
+        activate SP
+        SP-->>RS: accessible
+        deactivate SP
+        RS->>RP: save(Release(details))
+        activate RP
+        RP-->>RS: Release(id)
+        deactivate RP
+        RS-->>API: ReleaseCreated(id)
+        API-->>UI: 201 Created
+        UI-->>BM: showSuccess()
+    end
+    deactivate RS
+    deactivate API
+    deactivate UI
