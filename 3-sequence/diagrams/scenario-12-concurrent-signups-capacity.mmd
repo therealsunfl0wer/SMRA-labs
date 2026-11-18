@@ -1,0 +1,60 @@
+sequenceDiagram
+    autonumber
+    actor MA as Musician A
+    actor MB as Musician B
+    participant API as SignupController
+    participant SS as SignupService
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    participant DB as Database
+    Note over MA,DB: Scenario 12 - Concurrent signups cannot exceed Event.capacity
+    par Musician A request
+        MA->>API: POST signup(Event 1)
+        activate API
+        API->>SS: createSignup(A, 1)
+        activate SS
+        SS->>ER: findById(1)
+        activate ER
+        ER-->>SS: Event(capacity=5)
+        deactivate ER
+        SS->>SR: insertIfBelowCapacity(A, 1, 5)
+        activate SR
+        SR->>DB: serializable conditional insert
+        activate DB
+        DB-->>SR: inserted (count 4 to 5)
+        deactivate DB
+        SR-->>SS: Signup(id=A)
+        deactivate SR
+        SS-->>API: SignupCreated(A)
+        API-->>MA: 201 Created
+        deactivate SS
+        deactivate API
+    and Musician B request
+        MB->>API: POST signup(Event 1)
+        activate API
+        API->>SS: createSignup(B, 1)
+        activate SS
+        SS->>ER: findById(1)
+        activate ER
+        ER-->>SS: Event(capacity=5)
+        deactivate ER
+        loop retry on serialization conflict (bounded)
+            SS->>SR: insertIfBelowCapacity(B, 1, 5)
+            activate SR
+            SR->>DB: serializable conditional insert
+            activate DB
+            alt transaction conflicts with A
+                DB-->>SR: serialization conflict
+                SR-->>SS: retryable
+            else capacity is already reached
+                DB-->>SR: zero rows inserted
+                SR-->>SS: EVENT_FULL
+            end
+            deactivate DB
+            deactivate SR
+        end
+        SS-->>API: SignupRejected(EVENT_FULL)
+        API-->>MB: 409 Event full
+        deactivate SS
+        deactivate API
+    end
