@@ -10,11 +10,11 @@ sequenceDiagram
     participant NS as NotificationService
     participant BR as BandRepository
     participant NR as NotificationRepository
-    participant ES as EmailService
-    Note over M,ES: Scenario 3 - Musician signs up and the Band is notified
+    participant Email as EmailService
+    Note over M,Email: Scenario 3 - Musician signs up and the Band is notified on both channels
     M->>UI: submitSignup(eventId, info)
     activate UI
-    UI->>API: POST /events/{id}/signups
+    UI->>API: POST /events/{eventId}/signups
     activate API
     API->>SS: createSignup(musicianId, eventId, info)
     activate SS
@@ -30,11 +30,7 @@ sequenceDiagram
     activate SR
     SR-->>SS: false
     deactivate SR
-    SS->>SR: countByEventId(eventId)
-    activate SR
-    SR-->>SS: countBelowCapacity
-    deactivate SR
-    SS->>SR: save(Signup)
+    SS->>SR: createIfCapacityAvailable(eventId, musicianId, info, capacity)
     activate SR
     SR-->>SS: Signup(id, event_id, musician_id)
     deactivate SR
@@ -45,16 +41,16 @@ sequenceDiagram
     BR-->>NS: Band(email)
     deactivate BR
     par email channel
-        NS->>ES: sendEmail(Band.email, signupNotice)
-        activate ES
-        ES-->>NS: deliveryAccepted(messageId)
-        deactivate ES
-        NS->>NR: save(Notification(signupId, email, sent))
+        NS->>Email: sendEmail(Band.email, signupNotice)
+        activate Email
+        Email-->>NS: deliveryAccepted(messageId)
+        deactivate Email
+        NS->>NR: save(Notification(signupId, channel=email))
         activate NR
         NR-->>NS: Notification(id)
         deactivate NR
     and site channel
-        NS->>NR: save(Notification(signupId, site, unread))
+        NS->>NR: save(Notification(signupId, channel=site))
         activate NR
         NR-->>NS: Notification(id)
         deactivate NR
