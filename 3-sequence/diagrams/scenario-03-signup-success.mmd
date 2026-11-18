@@ -1,0 +1,69 @@
+sequenceDiagram
+    autonumber
+    actor M as Musician
+    participant UI as WebClient
+    participant API as SignupController
+    participant SS as SignupService
+    participant MR as MusicianRepository
+    participant ER as EventRepository
+    participant SR as SignupRepository
+    participant NS as NotificationService
+    participant BR as BandRepository
+    participant NR as NotificationRepository
+    participant ES as EmailService
+    Note over M,ES: Scenario 3 - Musician signs up and the Band is notified
+    M->>UI: submitSignup(eventId, info)
+    activate UI
+    UI->>API: POST /events/{id}/signups
+    activate API
+    API->>SS: createSignup(musicianId, eventId, info)
+    activate SS
+    SS->>MR: findById(musicianId)
+    activate MR
+    MR-->>SS: Musician
+    deactivate MR
+    SS->>ER: findPublishedById(eventId)
+    activate ER
+    ER-->>SS: Event(band_id, capacity)
+    deactivate ER
+    SS->>SR: existsByMusicianAndEvent(musicianId, eventId)
+    activate SR
+    SR-->>SS: false
+    deactivate SR
+    SS->>SR: countByEventId(eventId)
+    activate SR
+    SR-->>SS: countBelowCapacity
+    deactivate SR
+    SS->>SR: save(Signup)
+    activate SR
+    SR-->>SS: Signup(id, event_id, musician_id)
+    deactivate SR
+    SS->>NS: notifyBandOfSignup(signupId, bandId)
+    activate NS
+    NS->>BR: findById(bandId)
+    activate BR
+    BR-->>NS: Band(email)
+    deactivate BR
+    par email channel
+        NS->>ES: sendEmail(Band.email, signupNotice)
+        activate ES
+        ES-->>NS: deliveryAccepted(messageId)
+        deactivate ES
+        NS->>NR: save(Notification(signupId, email, sent))
+        activate NR
+        NR-->>NS: Notification(id)
+        deactivate NR
+    and site channel
+        NS->>NR: save(Notification(signupId, site, unread))
+        activate NR
+        NR-->>NS: Notification(id)
+        deactivate NR
+    end
+    NS-->>SS: notificationsRecorded()
+    deactivate NS
+    SS-->>API: SignupCreated(signup)
+    API-->>UI: 201 Created
+    UI-->>M: showSignupConfirmation()
+    deactivate SS
+    deactivate API
+    deactivate UI
