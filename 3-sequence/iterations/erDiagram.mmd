@@ -35,7 +35,6 @@ erDiagram
         int id PK
         int signup_id FK
         string channel
-        string status
     }
     Release {
         int id PK
@@ -49,6 +48,7 @@ erDiagram
         int id PK
         string name
     }
+
     Musician }|..o{ Band : belongs
     Musician }o..|{ Instrument : plays
     Musician ||..o{ Signup : creates
@@ -60,3 +60,7 @@ erDiagram
     Event ||..o{ Signup : contains
     Signup ||..o{ Notification : triggers
     Release }|..|| Genre : belongs
+
+%% Domain constraint: UNIQUE(Signup.event_id, Signup.musician_id).
+%% Notification.channel is one of: email, site.
+%% The Task 3 specification does not define Notification delivery-status values.
