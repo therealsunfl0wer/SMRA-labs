@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor BM as Band Member
+    participant UI as WebClient
+    participant API as BandController
+    participant BS as BandService
+    participant BR as BandRepository
+    participant IR as InstrumentRepository
+    Note over BM,IR: Scenario 10 - Band associates Instruments idempotently
+    BM->>UI: addInstruments([Guitar, Drums])
+    activate UI
+    UI->>API: PUT /bands/{id}/instruments
+    activate API
+    API->>BS: addInstruments(bandId, instrumentIds)
+    activate BS
+    BS->>BR: findById(bandId)
+    activate BR
+    BR-->>BS: Band
+    deactivate BR
+    loop for each requested Instrument
+        BS->>IR: findById(instrumentId)
+        activate IR
+        IR-->>BS: Instrument
+        deactivate IR
+        BS->>BR: associateInstrumentIfAbsent(bandId, instrumentId)
+        activate BR
+        BR-->>BS: inserted or alreadyAssociated
+        deactivate BR
+    end
+    BS-->>API: InstrumentsAssociated()
+    API-->>UI: 200 OK
+    UI-->>BM: displayBandInstruments([Guitar, Drums])
+    deactivate BS
+    deactivate API
+    deactivate UI
