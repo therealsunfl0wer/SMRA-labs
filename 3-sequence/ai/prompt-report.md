@@ -100,7 +100,7 @@ The user selected the new Task 3 specification as authoritative over earlier Tas
 - Notification delivery-status values are not defined.
 - Event.capacity type, lower bound, and behavior when capacity is edited below the current Signup count are not defined.
 - FR-008 includes notification on Signup deletion, but the supplied scenario set has no standalone Musician-cancels-Signup scenario.
-- The GitHub connector's file-content write API accepts a commit message but does not expose a separate author/co-author field. The commits made through that API must be inspected to verify that the `Co-Authored-By` trailer was retained. Do not claim that this requirement is satisfied until verified.
+- Verified representative created and updated commits through the GitHub commit API: their messages contain the required `Co-authored-by: GPT-6 <gpt-6@openai.com>` trailer. Deletion commits were also created with the same trailer in their commit messages.
 
 ## Commit conventions
 
