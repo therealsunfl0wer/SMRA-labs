@@ -6,34 +6,35 @@ sequenceDiagram
     participant MS as MusicianService
     participant MR as MusicianRepository
     participant IR as InstrumentRepository
-    Note over M,IR: Scenario 11 - Musician associates an Instrument with their profile
-    M->>UI: addInstrument(Guitar)
+    Note over M,IR: Scenario 11 - Musician adds an Instrument to their profile
+    M->>UI: addInstrument(instrumentId=1)
     activate UI
-    UI->>API: PUT /musicians/me/instruments
+    UI->>API: PUT /musicians/1/instruments/1
     activate API
-    API->>MS: addInstrument(musicianId, instrumentId)
+    API->>MS: addInstrument(musicianId=1, instrumentId=1)
     activate MS
-    MS->>MR: findById(musicianId)
+    MS->>MR: findById(1)
     activate MR
-    MR-->>MS: Musician
+    MR-->>MS: Musician(id=1)
     deactivate MR
-    MS->>IR: findById(instrumentId)
+    MS->>IR: findById(1)
     activate IR
-    IR-->>MS: Instrument(Guitar)
+    IR-->>MS: Instrument(id=1, name=Guitar)
     deactivate IR
-    MS->>MR: associateInstrumentIfAbsent(musicianId, instrumentId)
+    MS->>MR: addInstrument(1, 1)
     activate MR
-    MR-->>MS: associationCreated
-    deactivate MR
-    opt instrument was already associated
-        MS->>MR: confirmExistingAssociation(musicianId, instrumentId)
-        activate MR
-        MR-->>MS: associationExists
-        deactivate MR
+    alt association does not exist
+        MR-->>MS: associationCreated
+        MS-->>API: InstrumentAdded(Guitar)
+        API-->>UI: 200 OK
+        UI-->>M: showInstrumentAdded(Guitar)
+    else association already exists
+        MR-->>MS: associationAlreadyExists
+        MS-->>API: InstrumentAlreadyPresent(Guitar)
+        API-->>UI: 200 OK
+        UI-->>M: showInstrumentAlreadyPresent(Guitar)
     end
-    MS-->>API: InstrumentAssociated()
-    API-->>UI: 200 OK
-    UI-->>M: displayProfileInstrument(Guitar)
+    deactivate MR
     deactivate MS
     deactivate API
     deactivate UI
