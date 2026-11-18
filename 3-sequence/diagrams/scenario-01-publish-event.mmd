@@ -6,30 +6,32 @@ sequenceDiagram
     participant ES as EventService
     participant BR as BandRepository
     participant ER as EventRepository
-    Note over BM,ER: Scenario 1 - Band publishes a valid Event
+    Note over BM,ER: Scenario 1 - Band publishes an Event with a complete profile
     BM->>UI: submitEventForm(details)
     activate UI
-    UI->>API: POST /bands/1/events
+    UI->>API: POST /bands/{bandId}/events
     activate API
-    API->>ES: publishEvent(bandId, details)
+    API->>ES: publishEvent(bandId, bandMemberId, details)
     activate ES
     ES->>BR: findById(bandId)
     activate BR
-    BR-->>ES: Band(profileComplete=true)
+    BR-->>ES: Band(profile fields)
     deactivate BR
+    ES->>ES: verifyBandMembership(bandMemberId, bandId)
+    ES->>ES: validateBandProfile(band)
     ES->>ES: validateEventDetails(details)
-    alt details valid and Band profile complete
-        ES->>ER: save(Event(capacity, status=published))
+    alt membership valid, profile complete, and details valid
+        ES->>ER: save(Event(details, capacity, status=published))
         activate ER
-        ER-->>ES: Event(id, band_id, capacity)
+        ER-->>ES: Event(id, band_id, capacity, status)
         deactivate ER
         ES-->>API: EventPublished(event)
         API-->>UI: 201 Created
         UI-->>BM: showPublishedEvent(event)
-    else validation fails
-        ES-->>API: ValidationError(errors)
+    else membership, profile, or input validation fails
+        ES-->>API: ValidationError(reason)
         API-->>UI: 422 Unprocessable Entity
-        UI-->>BM: showValidationErrors(errors)
+        UI-->>BM: showValidationErrors(reason)
     end
     deactivate ES
     deactivate API
