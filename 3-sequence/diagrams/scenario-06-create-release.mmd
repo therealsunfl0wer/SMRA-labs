@@ -1,0 +1,42 @@
+sequenceDiagram
+    autonumber
+    actor BM as Band Member
+    participant UI as WebClient
+    participant API as ReleaseController
+    participant RS as ReleaseService
+    participant BR as BandRepository
+    participant GR as GenreRepository
+    participant RP as ReleaseRepository
+    participant NS as NotificationService
+    Note over BM,NS: Scenario 6 - Band creates a valid Release
+    BM->>UI: submitRelease(details, genreId)
+    activate UI
+    UI->>API: POST /bands/{id}/releases
+    activate API
+    API->>RS: createRelease(bandId, details, genreId)
+    activate RS
+    RS->>BR: findById(bandId)
+    activate BR
+    BR-->>RS: Band
+    deactivate BR
+    RS->>GR: findById(genreId)
+    activate GR
+    GR-->>RS: Genre
+    deactivate GR
+    RS->>RS: validateReleaseDetails(details)
+    RS->>RP: save(Release(band_id, genre_id, details))
+    activate RP
+    RP-->>RS: Release(id)
+    deactivate RP
+    opt release publication notification is configured
+        RS->>NS: notifyReleasePublished(releaseId, bandId)
+        activate NS
+        NS-->>RS: notificationResult
+        deactivate NS
+    end
+    RS-->>API: ReleaseCreated(release)
+    API-->>UI: 201 Created
+    UI-->>BM: showRelease(release)
+    deactivate RS
+    deactivate API
+    deactivate UI
