@@ -9,7 +9,7 @@ sequenceDiagram
     Note over M,SR: Scenario 5 - Signup is rejected when Event capacity is reached
     M->>UI: submitSignup(eventId, info)
     activate UI
-    UI->>API: POST /events/{id}/signups
+    UI->>API: POST /events/{eventId}/signups
     activate API
     API->>SS: createSignup(musicianId, eventId, info)
     activate SS
@@ -21,23 +21,20 @@ sequenceDiagram
     activate SR
     SR-->>SS: false
     deactivate SR
-    SS->>SR: countByEventId(eventId)
+    SS->>SR: createIfCapacityAvailable(eventId, musicianId, info, capacity=5)
     activate SR
-    SR-->>SS: count=5
-    deactivate SR
-    alt signup count is equal to Event.capacity
-        SS-->>API: SignupRejected(EVENT_FULL)
-        API-->>UI: 409 Conflict
-        UI-->>M: showError("Event full")
-    else capacity remains
-        SS->>SR: save(Signup)
-        activate SR
+    alt current Signup count is below Event.capacity
         SR-->>SS: Signup(id)
-        deactivate SR
         SS-->>API: SignupCreated(id)
         API-->>UI: 201 Created
         UI-->>M: showConfirmation()
+    else current Signup count equals Event.capacity
+        SR-->>SS: CapacityReached
+        SS-->>API: SignupRejected(EVENT_FULL)
+        API-->>UI: 409 Conflict
+        UI-->>M: showError("Event full")
     end
+    deactivate SR
     deactivate SS
     deactivate API
     deactivate UI
